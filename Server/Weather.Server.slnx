@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="Weather.Abstraction/Weather.Abstraction.csproj" Id="e5b18282-21f3-490e-9680-31fe11e25e6c" />
+  <Project Path="Weather.Model/Weather.Model.csproj" Id="6575cc8a-419c-4742-9986-5f0d69c85fe7" />
+  <Project Path="Weather.Persistence/Weather.Persistence.csproj" Id="1bee6e05-bcd1-4ee0-84ef-7debc13a6ed7" />
+  <Project Path="Weather.Server/Weather.Server.csproj" />
+  <Project Path="Weather.Services/Weather.Services.csproj" Id="9d4c5480-7c6b-4ec9-b5a7-dee1f958d0b1" />
+  <Project Path="Weather.Startup/Weather.Startup.csproj" Id="6b371b05-e686-4298-b838-573bce7239af" />
+</Solution>
