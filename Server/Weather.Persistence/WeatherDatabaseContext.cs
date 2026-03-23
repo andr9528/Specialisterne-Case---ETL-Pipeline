@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Weather.Model.Entity;
+using Weather.Persistence.Configuration;
 using Weather.Persistence.Core;
 using Weather.Persistence.Core.Abstraction;
+using Weather.Persistence.Services;
 
 namespace Weather.Persistence
 {
@@ -24,6 +26,11 @@ namespace Weather.Persistence
 
             var databaseType =
                 DatabaseType.POSTGRESQL; // This can be made dynamic based on configuration or environment variables.
+
+            modelBuilder.ApplyConfiguration(new BmeConfiguration(databaseType));
+            modelBuilder.ApplyConfiguration(new DmiConfiguration(databaseType));
+            modelBuilder.ApplyConfiguration(new DsConfiguration(databaseType));
+            modelBuilder.ApplyConfiguration(new ScdConfiguration(databaseType));
         }
     }
 }
