@@ -1,3 +1,5 @@
+using Weather.Abstraction.Enum;
+
 namespace Weather.Abstraction.Interfaces.Persistence;
 
 // Todo: Consider at better name...
@@ -9,4 +11,7 @@ namespace Weather.Abstraction.Interfaces.Persistence;
 public interface IComplexSearchable<TSearchable> where TSearchable : class, ISearchable, new()
 {
     TSearchable Searchable { get; set; }
+
+    OrderDirection? OrderByObservedAt { get; set; }
+    OrderDirection? OrderByPulledAt { get; set; }
 }

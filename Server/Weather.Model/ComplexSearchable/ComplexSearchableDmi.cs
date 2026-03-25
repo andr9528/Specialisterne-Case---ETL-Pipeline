@@ -1,4 +1,5 @@
-﻿using Weather.Abstraction.Interfaces.Persistence;
+﻿using Weather.Abstraction.Enum;
+using Weather.Abstraction.Interfaces.Persistence;
 using Weather.Model.Searchable;
 
 namespace Weather.Model.ComplexSearchable
@@ -7,5 +8,11 @@ namespace Weather.Model.ComplexSearchable
     {
         /// <inheritdoc />
         public SearchableDmi Searchable { get; set; } = new SearchableDmi();
+
+        /// <inheritdoc />
+        public OrderDirection? OrderByObservedAt { get; set; }
+
+        /// <inheritdoc />
+        public OrderDirection? OrderByPulledAt { get; set; }
     }
 }
