@@ -13,14 +13,9 @@ namespace Weather.Server.Controllers
     public class ScdController : EntityController<Scd, SearchableScd, ScdController, ComplexSearchableScd, ReadDtoScd>
     {
         /// <inheritdoc />
-        public ScdController(IEntityQueryService<Scd, SearchableScd> entityService, ILogger<ScdController> logger) : base(entityService, logger)
+        public ScdController(
+            EntityControllerDependencies<Scd, SearchableScd, ReadDtoScd> dependencies, ILogger<ScdController> logger) : base(dependencies, logger)
         {
-        }
-
-        /// <inheritdoc />
-        protected override ReadDtoScd BuildDataTransferObject(Scd entity)
-        {
-            throw new NotImplementedException();
         }
     }
 }

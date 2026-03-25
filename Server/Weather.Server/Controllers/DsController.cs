@@ -13,14 +13,9 @@ namespace Weather.Server.Controllers
     public class DsController : EntityController<Ds, SearchableDs, DsController, ComplexSearchableDs, ReadDtoDs>
     {
         /// <inheritdoc />
-        public DsController(IEntityQueryService<Ds, SearchableDs> entityService, ILogger<DsController> logger) : base(entityService, logger)
+        public DsController(
+            EntityControllerDependencies<Ds, SearchableDs, ReadDtoDs> dependencies, ILogger<DsController> logger) : base(dependencies, logger)
         {
-        }
-
-        /// <inheritdoc />
-        protected override ReadDtoDs BuildDataTransferObject(Ds entity)
-        {
-            throw new NotImplementedException();
         }
     }
 }

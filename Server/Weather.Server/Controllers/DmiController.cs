@@ -13,14 +13,9 @@ namespace Weather.Server.Controllers
     public class DmiController : EntityController<Dmi, SearchableDmi, DmiController, ComplexSearchableDmi, ReadDtoDmi>
     {
         /// <inheritdoc />
-        public DmiController(IEntityQueryService<Dmi, SearchableDmi> entityService, ILogger<DmiController> logger) : base(entityService, logger)
+        public DmiController(
+            EntityControllerDependencies<Dmi, SearchableDmi, ReadDtoDmi> dependencies, ILogger<DmiController> logger) : base(dependencies, logger)
         {
-        }
-
-        /// <inheritdoc />
-        protected override ReadDtoDmi BuildDataTransferObject(Dmi entity)
-        {
-            throw new NotImplementedException();
         }
     }
 }

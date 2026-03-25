@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Numerics;
 using Weather.Abstraction.Interfaces.Dto;
 using Weather.Abstraction.Interfaces.Persistence;
+using Weather.Abstraction.Interfaces.Startup;
 
 namespace Weather.Server.Controllers.Core;
-
-// Todo: Add Authorization / Authentication
 
 // Add the two lines below to any controller.
 //[Route(Constants.ROUTE_TEMPLATE)]
@@ -17,13 +17,16 @@ public abstract class EntityController<TEntity, TSearchable, TController, TCompl
     where TComplex : IComplexSearchable<TSearchable>
     where TReadDto : class, IReadDto
 {
-    protected readonly IEntityQueryService<TEntity, TSearchable> entityService;
-    protected readonly ILogger<TController> logger;
+    private readonly IEntityQueryService<TEntity, TSearchable> entityService;
+    private readonly ILogger<TController> logger;
+    private readonly IReadDtoFactory<TEntity, TReadDto> readDtoFactory;
 
-    protected EntityController(IEntityQueryService<TEntity, TSearchable> entityService, ILogger<TController> logger)
+    protected EntityController(
+        EntityControllerDependencies<TEntity, TSearchable, TReadDto> dependencies, ILogger<TController> logger)
     {
-        this.entityService = entityService;
         this.logger = logger;
+        entityService = dependencies.QueryService;
+        readDtoFactory = dependencies.ReadDtoFactory;
     }
 
     [HttpGet]
@@ -182,6 +185,32 @@ public abstract class EntityController<TEntity, TSearchable, TController, TCompl
         }
     }
 
-    private IEnumerable<TReadDto> BuildDataTransferObjects(IEnumerable<TEntity> entities) => entities.Select(BuildDataTransferObject);
-    protected abstract TReadDto BuildDataTransferObject(TEntity entity);
+    private IEnumerable<TReadDto> BuildDataTransferObjects(IEnumerable<TEntity> entities)
+    {
+        ArgumentNullException.ThrowIfNull(entities);
+
+        TEntity[] entityArray = entities as TEntity[] ?? entities.ToArray();
+
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
+        TReadDto[] dtos = entityArray.Select(BuildDataTransferObject).ToArray();
+
+        stopwatch.Stop();
+
+        double totalMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
+        double millisecondsPerEntity = entityArray.Length == 0 ? 0 : totalMilliseconds / entityArray.Length;
+
+        logger.LogInformation(
+            "Mapped {EntityCount} entities of type {EntityType} to {DtoType} in {TotalMilliseconds:F2} ms ({MillisecondsPerEntity:F4} ms/entity).",
+            entityArray.Length, typeof(TEntity).Name, typeof(TReadDto).Name, totalMilliseconds, millisecondsPerEntity);
+
+        return dtos;
+    }
+
+    private TReadDto BuildDataTransferObject(TEntity entity)
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+
+        return readDtoFactory.Create(entity);
+    }
 }

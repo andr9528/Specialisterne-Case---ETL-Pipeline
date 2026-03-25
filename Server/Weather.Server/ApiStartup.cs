@@ -1,11 +1,15 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Weather.Abstraction.Interfaces.Persistence;
+using Weather.Abstraction.Interfaces.Startup;
 using Weather.Model.ComplexSearchable;
+using Weather.Model.Dto.Read;
 using Weather.Model.Entity;
 using Weather.Model.Searchable;
 using Weather.Persistence;
 using Weather.Persistence.Services;
+using Weather.Server.Controllers.Core;
+using Weather.Server.Factory.ReadDto;
 using Weather.Server.Startup;
 using Weather.Services;
 using Weather.Startup;
@@ -61,11 +65,17 @@ public class ApiStartup : ModularStartup<IApplicationBuilder>
             options.SerializerSettings.Converters.Add(new StringEnumConverter());
         });
 
-        // When a class implementation for a Complex Searchable is added, Add a line below, and update the Type used in the Controller.
         services.AddTransient<IComplexSearchable<SearchableBme>, ComplexSearchableBme>();
         services.AddTransient<IComplexSearchable<SearchableDmi>, ComplexSearchableDmi>();
         services.AddTransient<IComplexSearchable<SearchableDs>, ComplexSearchableDs>();
         services.AddTransient<IComplexSearchable<SearchableScd>, ComplexSearchableScd>();
+
+        services.AddScoped<IReadDtoFactory<Bme, ReadDtoBme>, BmeReadDtoFactory>();
+        services.AddScoped<IReadDtoFactory<Dmi, ReadDtoDmi>, DmiReadDtoFactory>();
+        services.AddScoped<IReadDtoFactory<Ds, ReadDtoDs>, DsReadDtoFactory>();
+        services.AddScoped<IReadDtoFactory<Scd, ReadDtoScd>, ScdReadDtoFactory>();
+
+        services.AddScoped(typeof(EntityControllerDependencies<,,>));
 
         services.AddCors();
     }
