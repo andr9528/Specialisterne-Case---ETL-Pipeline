@@ -1,4 +1,5 @@
 ﻿using Weather.Abstraction.Interfaces.Persistence;
+using Weather.Model.ComplexSearchable;
 using Weather.Model.Entity;
 using Weather.Model.Searchable;
 using Weather.Persistence.Core;
@@ -15,7 +16,13 @@ namespace Weather.Persistence.Services
         /// <inheritdoc />
         protected override IQueryable<Scd> AddComplexQueryArguments(IQueryable<Scd> query, IComplexSearchable<SearchableScd> complex)
         {
-            return query;
+            if (complex is not ComplexSearchableScd complexSearchableScd)
+            {
+                throw new ArgumentException(
+                    $"Expected {nameof(complex)} to be of type {nameof(ComplexSearchableDs)}, but it wasn't.");
+            }
+
+            return ApplyOrderingQueryArguments(query, complexSearchableScd, x => x.ObservedAt, x => x.PulledAt);
         }
 
         /// <inheritdoc />

@@ -1,5 +1,9 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Weather.Abstraction.Enum;
+using Weather.Abstraction.Interfaces.Model.Entity;
 using Weather.Abstraction.Interfaces.Persistence;
+// ReSharper disable SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
 
 namespace Weather.Persistence.Core
 {
@@ -144,5 +148,61 @@ namespace Weather.Persistence.Core
         /// <param name="query"></param>
         /// <returns></returns>
         protected abstract IQueryable<TEntity> AddQueryArguments(TSearchable searchable, IQueryable<TEntity> query);
+
+        protected IQueryable<TEntity> ApplyOrderingQueryArguments(
+            IQueryable<TEntity> query, IComplexSearchable<TSearchable> complex,
+            Expression<Func<TEntity, DateTime>> observedAtSelector,
+            Expression<Func<TEntity, DateTime>> pulledAtSelector)
+        {
+            IOrderedQueryable<TEntity>? orderedQuery = ApplyOrdering(
+                query, complex.OrderByObservedAt, observedAtSelector);
+
+            orderedQuery = ApplyThenOrdering(query, orderedQuery, complex.OrderByPulledAt, pulledAtSelector);
+
+            return orderedQuery ?? query;
+        }
+
+        private static IOrderedQueryable<TEntity>? ApplyOrdering(
+            IQueryable<TEntity> query, OrderDirection? direction, Expression<Func<TEntity, DateTime>> selector)
+        {
+            if (!direction.HasValue)
+            {
+                return null;
+            }
+
+            return direction.Value switch
+            {
+                OrderDirection.ASCENDING => query.OrderBy(selector),
+                OrderDirection.DESCENDING => query.OrderByDescending(selector),
+                _ => throw new ArgumentOutOfRangeException(nameof(direction))
+            };
+        }
+
+        private static IOrderedQueryable<TEntity>? ApplyThenOrdering(
+            IQueryable<TEntity> query, IOrderedQueryable<TEntity>? orderedQuery, OrderDirection? direction,
+            Expression<Func<TEntity, DateTime>> selector)
+        {
+            if (!direction.HasValue)
+            {
+                return orderedQuery;
+            }
+
+            if (orderedQuery is null)
+            {
+                return direction.Value switch
+                {
+                    OrderDirection.ASCENDING => query.OrderBy(selector),
+                    OrderDirection.DESCENDING => query.OrderByDescending(selector),
+                    _ => throw new ArgumentOutOfRangeException(nameof(direction))
+                };
+            }
+
+            return direction.Value switch
+            {
+                OrderDirection.ASCENDING => orderedQuery.ThenBy(selector),
+                OrderDirection.DESCENDING => orderedQuery.ThenByDescending(selector),
+                _ => throw new ArgumentOutOfRangeException(nameof(direction))
+            };
+        }
     }
 }
