@@ -76,6 +76,7 @@ public class ApiStartup : ModularStartup<IApplicationBuilder>
         services.AddScoped<IReadDtoFactory<Scd, ReadDtoScd>, ScdReadDtoFactory>();
 
         services.AddScoped(typeof(EntityControllerDependencies<,,>));
+        services.AddScoped(typeof(OverviewControllerDependencies));
 
         services.AddCors();
     }
