@@ -14,14 +14,13 @@ namespace Weather.Model.Extensions
         private sealed record PropertyMap(PropertyInfo SourceProperty, PropertyInfo TargetProperty);
 
         /// <summary>
-        /// 
+        /// Make sure to call <see cref="EnsureRequiredPropertiesAreSet"/> afterward at some point on the returned Dto.
         /// </summary>
         /// <typeparam name="TDto"></typeparam>
         /// <param name="entity"></param>
-        /// <param name="ensureRequired">If set to false, make sure to call <see cref="EnsureRequiredPropertiesAreSet"/> yourself.</param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public static TDto PackToReadDto<TDto>(this IEntity entity, bool ensureRequired = true) where TDto : class, IReadDto
+        public static TDto PackToReadDto<TDto>(this IEntity entity) where TDto : class, IReadDto
         {
             ArgumentNullException.ThrowIfNull(entity);
 
@@ -33,8 +32,6 @@ namespace Weather.Model.Extensions
             }
 
             CopyMatchingProperties(entity, dto);
-            if (ensureRequired)
-                dto.EnsureRequiredPropertiesAreSet();
 
             return dto;
         }

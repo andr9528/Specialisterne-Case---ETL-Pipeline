@@ -6,7 +6,11 @@ using Weather.Server.Factory.ReadDto.Core;
 
 namespace Weather.Server.Factory.ReadDto
 {
-    public class BmeReadDtoFactory : ReadDtoFactoryBase<Bme, ReadDtoBme>
+    public class BmeReadDtoFactory : ReadDtoFactoryBase<Bme, ReadDtoBme, BmeReadDtoFactory>
     {
+        /// <inheritdoc />
+        public BmeReadDtoFactory(ILogger<BmeReadDtoFactory> logger) : base(logger)
+        {
+        }
     }
 }

@@ -6,7 +6,11 @@ using Weather.Server.Factory.ReadDto.Core;
 
 namespace Weather.Server.Factory.ReadDto
 {
-    public class ScdReadDtoFactory : ReadDtoFactoryBase<Scd, ReadDtoScd>
+    public class ScdReadDtoFactory : ReadDtoFactoryBase<Scd, ReadDtoScd, ScdReadDtoFactory>
     {
+        /// <inheritdoc />
+        public ScdReadDtoFactory(ILogger<ScdReadDtoFactory> logger) : base(logger)
+        {
+        }
     }
 }

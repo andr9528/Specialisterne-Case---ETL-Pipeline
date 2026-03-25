@@ -28,5 +28,11 @@ namespace Weather.Model.Dto.Read
         public double Value { get; set; }
 
         public required string ValueUnit { get; set; }
+
+        /// <inheritdoc />
+        public required string LocalObservedAtHumanReadable { get; set; }
+
+        /// <inheritdoc />
+        public required string LocalPulledAtHumanReadable { get; set; }
     }
 }

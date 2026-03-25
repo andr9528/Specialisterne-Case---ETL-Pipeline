@@ -29,5 +29,11 @@ namespace Weather.Model.Dto.Read
 
         /// <inheritdoc />
         public DateTime PulledAt { get; set; }
+
+        /// <inheritdoc />
+        public required string LocalObservedAtHumanReadable { get; set; }
+
+        /// <inheritdoc />
+        public required string LocalPulledAtHumanReadable { get; set; }
     }
 }

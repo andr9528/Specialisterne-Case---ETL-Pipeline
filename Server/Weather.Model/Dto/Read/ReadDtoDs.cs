@@ -25,5 +25,11 @@ namespace Weather.Model.Dto.Read
         public float Temperature { get; set; }
 
         public required string TemperatureUnit { get; set; }
+
+        /// <inheritdoc />
+        public required string LocalObservedAtHumanReadable { get; set; }
+
+        /// <inheritdoc />
+        public required string LocalPulledAtHumanReadable { get; set; }
     }
 }
