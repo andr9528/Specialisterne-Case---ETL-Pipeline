@@ -33,6 +33,16 @@ namespace Weather.Persistence.Services
         /// <inheritdoc />
         protected override IQueryable<Scd> AddQueryArguments(SearchableScd searchable, IQueryable<Scd> query)
         {
+            if (searchable.ReaderId != Guid.Empty)
+            {
+                query = query.Where(x => x.ReaderId == searchable.ReaderId);
+            }
+
+            if (searchable.CarbonDioxide != 0)
+            {
+                query = query.Where(x => x.CarbonDioxide == searchable.CarbonDioxide);
+            }
+
             return query;
         }
     }

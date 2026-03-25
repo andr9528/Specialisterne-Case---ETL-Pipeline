@@ -33,6 +33,16 @@ namespace Weather.Persistence.Services
         /// <inheritdoc />
         protected override IQueryable<Bme> AddQueryArguments(SearchableBme searchable, IQueryable<Bme> query)
         {
+            if (searchable.Location != default)
+            {
+                query = query.Where(x => x.Location == searchable.Location);
+            }
+
+            if (searchable.ReaderId != Guid.Empty)
+            {
+                query = query.Where(x => x.ReaderId == searchable.ReaderId);
+            }
+
             return query;
         }
     }

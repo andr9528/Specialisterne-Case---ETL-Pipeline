@@ -33,6 +33,21 @@ namespace Weather.Persistence.Services
         /// <inheritdoc />
         protected override IQueryable<Dmi> AddQueryArguments(SearchableDmi searchable, IQueryable<Dmi> query)
         {
+            if (searchable.DmiId != Guid.Empty)
+            {
+                query = query.Where(x => x.DmiId == searchable.DmiId);
+            }
+
+            if (searchable.ParameterId != default)
+            {
+                query = query.Where(x => x.ParameterId == searchable.ParameterId);
+            }
+
+            if (searchable.StationId != 0)
+            {
+                query = query.Where(x => x.StationId == searchable.StationId);
+            }
+
             return query;
         }
     }
