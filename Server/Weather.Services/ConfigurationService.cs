@@ -83,7 +83,7 @@ namespace Weather.Services
         {
             IConfiguration activeConfiguration = configuration ?? BuildConfiguration();
 
-            string? directConnectionString = activeConfiguration["ConnectionStrings:InventoryDatabase"];
+            string? directConnectionString = activeConfiguration["ConnectionStrings:WeatherDatabase"];
 
             if (!string.IsNullOrWhiteSpace(directConnectionString))
             {
