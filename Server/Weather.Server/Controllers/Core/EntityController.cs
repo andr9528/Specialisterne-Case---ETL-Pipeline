@@ -29,8 +29,15 @@ namespace Weather.Server.Controllers.Core
             readDtoFactory = dependencies.ReadDtoFactory;
         }
 
+        /// <summary>
+        /// Retrieves all entities handled by this controller.
+        /// </summary>
+        /// <returns>
+        /// A collection of entities exposed by this controller,
+        /// or 204 No Content if no entities exist.
+        /// </returns>
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<TEntity>>> GetAll()
+        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAll()
         {
             try
             {
@@ -54,8 +61,16 @@ namespace Weather.Server.Controllers.Core
             }
         }
 
+        /// <summary>
+        /// Retrieves a single entity by its identifier.
+        /// </summary>
+        /// <param name="id">The identifier of the entity to retrieve.</param>
+        /// <returns>
+        /// The matching entity handled by this controller,
+        /// or 204 No Content if no entity matches the supplied id.
+        /// </returns>
         [HttpGet("id")]
-        public virtual async Task<ActionResult<TEntity?>> GetById(int id)
+        public virtual async Task<ActionResult<TReadDto>> GetById(int id)
         {
             try
             {
@@ -79,8 +94,18 @@ namespace Weather.Server.Controllers.Core
             }
         }
 
+        /// <summary>
+        /// Retrieves a single entity matching the supplied simple query.
+        /// </summary>
+        /// <param name="searchable">
+        /// A query object defining the properties to match for the entity handled by this controller.
+        /// </param>
+        /// <returns>
+        /// The first matching entity,
+        /// or 204 No Content if no entity matches the supplied query.
+        /// </returns>
         [HttpPost]
-        public virtual async Task<ActionResult<TEntity?>> GetByQuery([FromBody] TSearchable searchable)
+        public virtual async Task<ActionResult<TReadDto>> GetByQuery([FromBody] TSearchable searchable)
         {
             try
             {
@@ -104,8 +129,19 @@ namespace Weather.Server.Controllers.Core
             }
         }
 
+        /// <summary>
+        /// Retrieves a single entity matching the supplied complex query.
+        /// </summary>
+        /// <param name="complex">
+        /// A query object that combines basic filtering with additional options such as ordering
+        /// and date range constraints.
+        /// </param>
+        /// <returns>
+        /// The first matching entity,
+        /// or 204 No Content if no entity matches the supplied complex query.
+        /// </returns>
         [HttpPost]
-        public virtual async Task<ActionResult<TEntity?>> GetByComplexQuery([FromBody] TComplex complex)
+        public virtual async Task<ActionResult<TReadDto>> GetByComplexQuery([FromBody] TComplex complex)
         {
             try
             {
@@ -129,8 +165,18 @@ namespace Weather.Server.Controllers.Core
             }
         }
 
+        /// <summary>
+        /// Retrieves all entities matching the supplied simple query.
+        /// </summary>
+        /// <param name="searchable">
+        /// A query object defining the properties to match for the entity handled by this controller.
+        /// </param>
+        /// <returns>
+        /// A collection of matching entities,
+        /// or 204 No Content if no entities match the supplied query.
+        /// </returns>
         [HttpPost]
-        public virtual async Task<ActionResult<IEnumerable<TEntity>>> GetAllByQuery([FromBody] TSearchable searchable)
+        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllByQuery([FromBody] TSearchable searchable)
         {
             try
             {
@@ -155,8 +201,19 @@ namespace Weather.Server.Controllers.Core
             }
         }
 
+        /// <summary>
+        /// Retrieves all entities matching the supplied complex query.
+        /// </summary>
+        /// <param name="complex">
+        /// A query object that combines basic filtering with additional options such as ordering
+        /// and date range constraints.
+        /// </param>
+        /// <returns>
+        /// A collection of matching entities,
+        /// or 204 No Content if no entities match the supplied complex query.
+        /// </returns>
         [HttpPost]
-        public virtual async Task<ActionResult<IEnumerable<TEntity>>> GetAllByComplexQuery([FromBody] TComplex complex)
+        public virtual async Task<ActionResult<IEnumerable<TReadDto>>> GetAllByComplexQuery([FromBody] TComplex complex)
         {
             try
             {

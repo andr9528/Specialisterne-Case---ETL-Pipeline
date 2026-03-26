@@ -43,6 +43,13 @@ namespace Weather.Server.Controllers
             this.logger = logger;
         }
 
+        /// <summary>
+        /// Retrieves the latest readings from all available sensors.
+        /// </summary>
+        /// <returns>
+        /// An overview containing the most recent reading for each sensor type.
+        /// Returns 204 No Content if a reading could not be found for one or more sensors.
+        /// </returns>
         [HttpGet]
         public async Task<ActionResult<OverviewLatestReadingsDto>> GetLatestSensorReadings()
         {

@@ -11,48 +11,80 @@ namespace Weather.Server.Controllers
     [Route(Constants.ROUTE_TEMPLATE)]
     public class SearchableSamplesController : ControllerBase
     {
+        /// <summary>
+        /// Provides sample searchables for BME280 queries.
+        /// These samples can be used with the GetByQuery and GetAllByQuery endpoints on the Bme controller.
+        /// </summary>
         [HttpGet]
         public virtual ActionResult<IEnumerable<SearchableSampleDto>> GetSearchableBmeSamples()
         {
             return Ok(BuildSearchableBmeSamples());
         }
 
+        /// <summary>
+        /// Provides sample complex searchables for BME280 queries.
+        /// These samples can be used with the GetByComplexQuery and GetAllByComplexQuery endpoints on the Bme controller.
+        /// </summary>
         [HttpGet]
         public virtual ActionResult<IEnumerable<SearchableSampleDto>> GetComplexSearchableBmeSamples()
         {
             return Ok(BuildComplexSearchableBmeSamples());
         }
 
+        /// <summary>
+        /// Provides sample searchables for DMI queries.
+        /// These samples can be used with the GetByQuery and GetAllByQuery endpoints on the Dmi controller.
+        /// </summary>
         [HttpGet]
         public virtual ActionResult<IEnumerable<SearchableSampleDto>> GetSearchableDmiSamples()
         {
             return Ok(BuildSearchableDmiSamples());
         }
 
+        /// <summary>
+        /// Provides sample complex searchables for DMI queries.
+        /// These samples can be used with the GetByComplexQuery and GetAllByComplexQuery endpoints on the Dmi controller.
+        /// </summary>
         [HttpGet]
         public virtual ActionResult<IEnumerable<SearchableSampleDto>> GetComplexSearchableDmiSamples()
         {
             return Ok(BuildComplexSearchableDmiSamples());
         }
 
+        /// <summary>
+        /// Provides sample searchables for DS18B20 queries.
+        /// These samples can be used with the GetByQuery and GetAllByQuery endpoints on the Ds controller.
+        /// </summary>
         [HttpGet]
         public virtual ActionResult<IEnumerable<SearchableSampleDto>> GetSearchableDsSamples()
         {
             return Ok(BuildSearchableDsSamples());
         }
 
+        /// <summary>
+        /// Provides sample complex searchables for DS18B20 queries.
+        /// These samples can be used with the GetByComplexQuery and GetAllByComplexQuery endpoints on the Ds controller.
+        /// </summary>
         [HttpGet]
         public virtual ActionResult<IEnumerable<SearchableSampleDto>> GetComplexSearchableDsSamples()
         {
             return Ok(BuildComplexSearchableDsSamples());
         }
 
+        /// <summary>
+        /// Provides sample searchables for SCD41 queries.
+        /// These samples can be used with the GetByQuery and GetAllByQuery endpoints on the Scd controller.
+        /// </summary>
         [HttpGet]
         public virtual ActionResult<IEnumerable<SearchableSampleDto>> GetSearchableScdSamples()
         {
             return Ok(BuildSearchableScdSamples());
         }
 
+        /// <summary>
+        /// Provides sample complex searchables for SCD41 queries.
+        /// These samples can be used with the GetByComplexQuery and GetAllByComplexQuery endpoints on the Scd controller.
+        /// </summary>
         [HttpGet]
         public virtual ActionResult<IEnumerable<SearchableSampleDto>> GetComplexSearchableScdSamples()
         {

@@ -1,4 +1,6 @@
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
+using System.Reflection;
 using Weather.Abstraction.Interfaces.Startup;
 
 namespace Weather.Server.Startup
@@ -16,7 +18,15 @@ namespace Weather.Server.Startup
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = apiTitle, Version = "v1",}); });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = apiTitle, Version = "v1",});
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+                c.IncludeXmlComments(xmlPath);
+            });
             services.AddSwaggerGenNewtonsoftSupport();
         }
 
