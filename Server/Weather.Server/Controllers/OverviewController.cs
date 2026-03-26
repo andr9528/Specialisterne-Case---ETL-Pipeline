@@ -44,7 +44,7 @@ namespace Weather.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetLatestSensorReadings()
+        public async Task<ActionResult<OverviewLatestReadingsDto>> GetLatestSensorReadings()
         {
             try
             {

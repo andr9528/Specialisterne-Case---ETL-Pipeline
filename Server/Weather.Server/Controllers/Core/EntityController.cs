@@ -30,7 +30,7 @@ namespace Weather.Server.Controllers.Core
         }
 
         [HttpGet]
-        public virtual async Task<IActionResult> GetAll()
+        public virtual async Task<ActionResult<IEnumerable<TEntity>>> GetAll()
         {
             try
             {
@@ -55,7 +55,7 @@ namespace Weather.Server.Controllers.Core
         }
 
         [HttpGet("id")]
-        public virtual async Task<IActionResult> GetById(int id)
+        public virtual async Task<ActionResult<TEntity?>> GetById(int id)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace Weather.Server.Controllers.Core
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> GetByQuery([FromBody] TSearchable searchable)
+        public virtual async Task<ActionResult<TEntity?>> GetByQuery([FromBody] TSearchable searchable)
         {
             try
             {
@@ -105,7 +105,7 @@ namespace Weather.Server.Controllers.Core
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> GetByComplexQuery([FromBody] TComplex complex)
+        public virtual async Task<ActionResult<TEntity?>> GetByComplexQuery([FromBody] TComplex complex)
         {
             try
             {
@@ -130,7 +130,7 @@ namespace Weather.Server.Controllers.Core
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> GetAllByQuery([FromBody] TSearchable searchable)
+        public virtual async Task<ActionResult<IEnumerable<TEntity>>> GetAllByQuery([FromBody] TSearchable searchable)
         {
             try
             {
@@ -156,7 +156,7 @@ namespace Weather.Server.Controllers.Core
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> GetAllByComplexQuery([FromBody] TComplex complex)
+        public virtual async Task<ActionResult<IEnumerable<TEntity>>> GetAllByComplexQuery([FromBody] TComplex complex)
         {
             try
             {
