@@ -3,6 +3,7 @@ using Weather.Model.ComplexSearchable;
 using Weather.Model.Entity;
 using Weather.Model.Searchable;
 using Weather.Persistence.Core;
+using Weather.Persistence.Extensions;
 
 namespace Weather.Persistence.Services
 {
@@ -22,7 +23,7 @@ namespace Weather.Persistence.Services
                     $"Expected {nameof(complex)} to be of type {nameof(ComplexSearchableDs)}, but it wasn't.");
             }
 
-            return ApplyOrderingQueryArguments(query, complexSearchableDs, x => x.ObservedAt, x => x.PulledAt);
+            return query.ApplyOrderingQueryArguments(complexSearchableDs);
         }
 
         /// <inheritdoc />
