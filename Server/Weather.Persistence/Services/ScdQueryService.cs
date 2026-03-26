@@ -26,6 +26,11 @@ namespace Weather.Persistence.Services
             query = query.ApplyLastXDaysFilter(complex.LastXDaysObservedAt, x => x.ObservedAt);
             query = query.ApplyLastXDaysFilter(complex.LastXDaysPulledAt, x => x.PulledAt);
 
+            query = query.ApplyAfterDateTime(complex.ObservedAtAfterThisDateTime, x => x.ObservedAt);
+            query = query.ApplyBeforeDateTime(complex.ObservedAtBeforeThisDateTime, x => x.ObservedAt);
+            query = query.ApplyAfterDateTime(complex.PulledAtAfterThisDateTime, x => x.PulledAt);
+            query = query.ApplyBeforeDateTime(complex.PulledAtBeforeThisDateTime, x => x.PulledAt);
+
             return query.ApplyOrderingQueryArguments(complexSearchableScd);
         }
 

@@ -86,9 +86,40 @@ namespace Weather.Persistence.Extensions
             }
 
             var cutoff = DateTime.UtcNow.AddDays(-lastXDays.Value);
+            var body = Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(cutoff));
+            var lambda = Expression.Lambda<Func<TEntity, bool>>(body, selector.Parameters);
 
-            return query.Where(Expression.Lambda<Func<TEntity, bool>>(
-                Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(cutoff)), selector.Parameters));
+            return query.Where(lambda);
+        }
+
+        public static IQueryable<TEntity> ApplyAfterDateTime<TEntity>(
+            this IQueryable<TEntity> query, DateTime? after, Expression<Func<TEntity, DateTime>> selector)
+            where TEntity : class, IEntity
+        {
+            if (!after.HasValue)
+            {
+                return query;
+            }
+
+            var body = Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(after.Value));
+            var lambda = Expression.Lambda<Func<TEntity, bool>>(body, selector.Parameters);
+
+            return query.Where(lambda);
+        }
+
+        public static IQueryable<TEntity> ApplyBeforeDateTime<TEntity>(
+            this IQueryable<TEntity> query, DateTime? before, Expression<Func<TEntity, DateTime>> selector)
+            where TEntity : class, IEntity
+        {
+            if (!before.HasValue)
+            {
+                return query;
+            }
+
+            var body = Expression.LessThanOrEqual(selector.Body, Expression.Constant(before.Value));
+            var lambda = Expression.Lambda<Func<TEntity, bool>>(body, selector.Parameters);
+
+            return query.Where(lambda);
         }
     }
 }

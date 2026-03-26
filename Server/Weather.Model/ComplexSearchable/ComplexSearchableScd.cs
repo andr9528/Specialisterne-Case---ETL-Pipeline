@@ -20,5 +20,17 @@ namespace Weather.Model.ComplexSearchable
 
         /// <inheritdoc />
         public int? LastXDaysPulledAt { get; set; }
+
+        /// <inheritdoc />
+        public DateTime? ObservedAtAfterThisDateTime { get; set; }
+
+        /// <inheritdoc />
+        public DateTime? ObservedAtBeforeThisDateTime { get; set; }
+
+        /// <inheritdoc />
+        public DateTime? PulledAtAfterThisDateTime { get; set; }
+
+        /// <inheritdoc />
+        public DateTime? PulledAtBeforeThisDateTime { get; set; }
     }
 }
