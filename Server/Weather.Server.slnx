@@ -5,4 +5,5 @@
   <Project Path="Weather.Server/Weather.Server.csproj" />
   <Project Path="Weather.Services/Weather.Services.csproj" Id="9d4c5480-7c6b-4ec9-b5a7-dee1f958d0b1" />
   <Project Path="Weather.Startup/Weather.Startup.csproj" Id="6b371b05-e686-4298-b838-573bce7239af" />
+  <Project Path="Weather.Tests/Weather.Tests.csproj" Id="ddea94d8-318d-4175-9416-73173a87dbd9" />
 </Solution>

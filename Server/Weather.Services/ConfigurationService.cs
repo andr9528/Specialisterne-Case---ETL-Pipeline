@@ -51,7 +51,7 @@ public class ConfigurationService
     /// <summary>
     /// Configures the database options using the supplied connection string.
     /// </summary>
-    private void ConfigureDatabaseOptions(DbContextOptionsBuilder options, string connectionString)
+    public void ConfigureDatabaseOptions(DbContextOptionsBuilder options, string connectionString)
     {
         options.UseNpgsql(connectionString);
 
@@ -71,7 +71,7 @@ public class ConfigurationService
         ConfigureDatabaseOptions(options, connectionString);
     }
 
-    private string GetConnectionString()
+    public string GetConnectionString()
     {
         if (GetDirectConnectionString(out string connectionString))
         {

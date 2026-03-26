@@ -29,6 +29,9 @@
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.5" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.Newtonsoft" Version="10.1.5" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.Newtonsoft" Version="10.1.5" />    
+    <PackageVersion Include="TUnit" Version="1.19.57" />    
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+    <PackageVersion Include="FluentAssertions" Version="8.8.0" />
   </ItemGroup>
 </Project>
