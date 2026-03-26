@@ -54,5 +54,9 @@ namespace Weather.Model.Entity
         {
             this.id = id;
         }
+
+        public Ds()
+        {
+        }
     }
 }
