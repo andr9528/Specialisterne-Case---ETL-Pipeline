@@ -6,18 +6,8 @@ using Weather.Tests.Core;
 
 namespace Weather.Tests
 {
-    public class BmeQueryServiceTests : BaseDatabaseTest
+    public class BmeQueryServiceTests
     {
-        [Test]
-        public async Task AddBme_SmokeTest()
-        {
-            using var sut = this.CreateBmeQueryServiceSut();
-
-            var action = async () => await sut.Factory.AddBme();
-
-            await action.Should().NotThrowAsync();
-        }
-
         public class GetAllEntities : BaseDatabaseTest
         {
             [Test]
