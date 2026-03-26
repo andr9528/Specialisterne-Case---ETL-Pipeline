@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>    
-    <PackageVersion Include="TUnit" />    
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" />
-    <PackageVersion Include="FluentAssertions" />
+    <PackageReference Include="TUnit" />    
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="FluentAssertions" />
   </ItemGroup>
 
   <ItemGroup>
