@@ -65,6 +65,8 @@ namespace Weather.Server
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
             });
 
             services.AddTransient<IComplexSearchable<SearchableBme>, ComplexSearchableBme>();
