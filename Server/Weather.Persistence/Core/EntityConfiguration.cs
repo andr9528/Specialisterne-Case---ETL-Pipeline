@@ -37,31 +37,6 @@ namespace Weather.Persistence.Core
             }
         }
 
-        protected string ToSnakeCase(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-                return input;
-
-            var builder = new System.Text.StringBuilder(input.Length + 5);
-
-            for (int i = 0; i < input.Length; i++)
-            {
-                var c = input[i];
-
-                if (char.IsUpper(c))
-                {
-                    if (i > 0)
-                        builder.Append('_');
-
-                    builder.Append(char.ToLowerInvariant(c));
-                }
-                else
-                {
-                    builder.Append(c);
-                }
-            }
-
-            return builder.ToString();
-        }
+        
     }
 }
