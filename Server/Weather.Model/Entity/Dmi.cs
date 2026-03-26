@@ -64,7 +64,7 @@ namespace Weather.Model.Entity
         /// </summary>
         /// <param name="id"></param>
         [JsonConstructor]
-        private Dmi(int id)
+        public Dmi(int id)
         {
             this.id = id;
         }
