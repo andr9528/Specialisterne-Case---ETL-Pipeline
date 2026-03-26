@@ -7,7 +7,7 @@ namespace Weather.Model.ComplexSearchable
     public class ComplexSearchableScd : IComplexSearchable<SearchableScd>
     {
         /// <inheritdoc />
-        public SearchableScd Searchable { get; set; } = new SearchableScd();
+        public SearchableScd Searchable { get; set; } = new();
 
         /// <inheritdoc />
         public OrderDirection? OrderByObservedAt { get; set; }

@@ -1,6 +1,7 @@
-namespace Weather.Server;
-
-public class Constants
+namespace Weather.Server
 {
-    public const string ROUTE_TEMPLATE = "api/[controller]/[action]";
+    public class Constants
+    {
+        public const string ROUTE_TEMPLATE = "api/[controller]/[action]";
+    }
 }

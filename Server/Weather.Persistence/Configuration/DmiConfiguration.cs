@@ -27,8 +27,8 @@ namespace Weather.Persistence.Configuration
 
             builder.Property(x => x.DmiId).HasColumnName(StringExtensions.ToSnakeCase(nameof(Dmi.DmiId)));
 
-            builder.Property(x => x.ParameterId).HasColumnName(StringExtensions.ToSnakeCase(nameof(Dmi.ParameterId))).HasMaxLength(50)
-                .HasConversion(x => StringExtensions.ToSnakeCase(x.ToString()),
+            builder.Property(x => x.ParameterId).HasColumnName(StringExtensions.ToSnakeCase(nameof(Dmi.ParameterId)))
+                .HasMaxLength(50).HasConversion(x => StringExtensions.ToSnakeCase(x.ToString()),
                     x => Enum.Parse<DmiParameter>(x, ignoreCase: true));
 
             builder.Property(x => x.Value).HasColumnName(StringExtensions.ToSnakeCase(nameof(Dmi.Value)))

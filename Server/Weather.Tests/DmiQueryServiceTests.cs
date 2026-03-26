@@ -1,8 +1,10 @@
 ﻿using FluentAssertions;
 using Weather.Abstraction.Enum;
 using Weather.Model.ComplexSearchable;
+using Weather.Model.Entity;
 using Weather.Model.Searchable;
 using Weather.Tests.Core;
+using Weather.Tests.Core.SystemUnderTests;
 
 namespace Weather.Tests
 {
@@ -14,11 +16,11 @@ namespace Weather.Tests
             public async Task ReturnsAllStoredEntities()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
 
-                await sut.Factory.AddDmi(id: 1);
-                await sut.Factory.AddDmi(id: 2);
-                await sut.Factory.AddDmi(id: 3);
+                await sut.Factory.AddDmi(1);
+                await sut.Factory.AddDmi(2);
+                await sut.Factory.AddDmi(3);
 
                 // Act
                 var result = await sut.Service.GetAllEntities();
@@ -34,17 +36,17 @@ namespace Weather.Tests
             public async Task WithMatchingId_ReturnsEntity()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
 
-                var created = await sut.Factory.AddDmi(id: 1);
+                Dmi created = await sut.Factory.AddDmi(1);
 
                 var searchable = new SearchableDmi
                 {
-                    Id = created.Id
+                    Id = created.Id,
                 };
 
                 // Act
-                var result = await sut.Service.GetEntity(searchable);
+                Dmi? result = await sut.Service.GetEntity(searchable);
 
                 // Assert
                 result.Should().NotBeNull();
@@ -55,15 +57,15 @@ namespace Weather.Tests
             public async Task WithNoMatch_ReturnsNull()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
 
                 var searchable = new SearchableDmi
                 {
-                    Id = 999999
+                    Id = 999999,
                 };
 
                 // Act
-                var result = await sut.Service.GetEntity(searchable);
+                Dmi? result = await sut.Service.GetEntity(searchable);
 
                 // Assert
                 result.Should().BeNull();
@@ -76,17 +78,17 @@ namespace Weather.Tests
             public async Task WithDmiId_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
 
                 var matchingDmiId = Guid.NewGuid();
 
-                await sut.Factory.AddDmi(id: 1, dmiId: matchingDmiId);
-                await sut.Factory.AddDmi(id: 2, dmiId: matchingDmiId);
-                await sut.Factory.AddDmi(id: 3, dmiId: Guid.NewGuid());
+                await sut.Factory.AddDmi(1, matchingDmiId);
+                await sut.Factory.AddDmi(2, matchingDmiId);
+                await sut.Factory.AddDmi(3, Guid.NewGuid());
 
                 var searchable = new SearchableDmi
                 {
-                    DmiId = matchingDmiId
+                    DmiId = matchingDmiId,
                 };
 
                 // Act
@@ -101,15 +103,15 @@ namespace Weather.Tests
             public async Task WithParameterId_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
 
-                await sut.Factory.AddDmi(id: 1, parameterId: DmiParameter.TEMP_DRY);
-                await sut.Factory.AddDmi(id: 2, parameterId: DmiParameter.TEMP_DRY);
-                await sut.Factory.AddDmi(id: 3, parameterId: DmiParameter.HUMIDITY);
+                await sut.Factory.AddDmi(1, parameterId: DmiParameter.TEMP_DRY);
+                await sut.Factory.AddDmi(2, parameterId: DmiParameter.TEMP_DRY);
+                await sut.Factory.AddDmi(3, parameterId: DmiParameter.HUMIDITY);
 
                 var searchable = new SearchableDmi
                 {
-                    ParameterId = DmiParameter.TEMP_DRY
+                    ParameterId = DmiParameter.TEMP_DRY,
                 };
 
                 // Act
@@ -124,15 +126,15 @@ namespace Weather.Tests
             public async Task WithStationId_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
 
-                await sut.Factory.AddDmi(id: 1, stationId: 1001);
-                await sut.Factory.AddDmi(id: 2, stationId: 1001);
-                await sut.Factory.AddDmi(id: 3, stationId: 2002);
+                await sut.Factory.AddDmi(1, stationId: 1001);
+                await sut.Factory.AddDmi(2, stationId: 1001);
+                await sut.Factory.AddDmi(3, stationId: 2002);
 
                 var searchable = new SearchableDmi
                 {
-                    StationId = 1001
+                    StationId = 1001,
                 };
 
                 // Act
@@ -150,23 +152,23 @@ namespace Weather.Tests
             public async Task ReturnsFirstMatchingEntity()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
 
                 var dmiId = Guid.NewGuid();
 
-                await sut.Factory.AddDmi(id: 1, dmiId: dmiId);
-                await sut.Factory.AddDmi(id: 2, dmiId: dmiId);
+                await sut.Factory.AddDmi(1, dmiId);
+                await sut.Factory.AddDmi(2, dmiId);
 
                 var complex = new ComplexSearchableDmi
                 {
                     Searchable = new SearchableDmi
                     {
-                        DmiId = dmiId
-                    }
+                        DmiId = dmiId,
+                    },
                 };
 
                 // Act
-                var result = await sut.Service.GetEntityComplex(complex);
+                Dmi? result = await sut.Service.GetEntityComplex(complex);
 
                 // Assert
                 result.Should().NotBeNull();
@@ -180,18 +182,18 @@ namespace Weather.Tests
             public async Task WithObservedAtAfterThisDateTime_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddDays(-2);
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddDays(-2);
 
-                await sut.Factory.AddDmi(id: 1, observedAt: now.AddDays(-4));
-                await sut.Factory.AddDmi(id: 2, observedAt: now.AddDays(-1));
-                await sut.Factory.AddDmi(id: 3, observedAt: now);
+                await sut.Factory.AddDmi(1, observedAt: now.AddDays(-4));
+                await sut.Factory.AddDmi(2, observedAt: now.AddDays(-1));
+                await sut.Factory.AddDmi(3, observedAt: now);
 
                 var complex = new ComplexSearchableDmi
                 {
                     Searchable = new SearchableDmi(),
-                    ObservedAtAfterThisDateTime = threshold
+                    ObservedAtAfterThisDateTime = threshold,
                 };
 
                 // Act
@@ -206,18 +208,18 @@ namespace Weather.Tests
             public async Task WithObservedAtBeforeThisDateTime_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddDays(-2);
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddDays(-2);
 
-                await sut.Factory.AddDmi(id: 1, observedAt: now.AddDays(-5));
-                await sut.Factory.AddDmi(id: 2, observedAt: now.AddDays(-3));
-                await sut.Factory.AddDmi(id: 3, observedAt: now.AddDays(-1));
+                await sut.Factory.AddDmi(1, observedAt: now.AddDays(-5));
+                await sut.Factory.AddDmi(2, observedAt: now.AddDays(-3));
+                await sut.Factory.AddDmi(3, observedAt: now.AddDays(-1));
 
                 var complex = new ComplexSearchableDmi
                 {
                     Searchable = new SearchableDmi(),
-                    ObservedAtBeforeThisDateTime = threshold
+                    ObservedAtBeforeThisDateTime = threshold,
                 };
 
                 // Act
@@ -232,17 +234,17 @@ namespace Weather.Tests
             public async Task WithLastXDaysObservedAt_ReturnsOnlyRecentEntities()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                await sut.Factory.AddDmi(id: 1, observedAt: now.AddDays(-10));
-                await sut.Factory.AddDmi(id: 2, observedAt: now.AddDays(-3));
-                await sut.Factory.AddDmi(id: 3, observedAt: now.AddDays(-1));
+                await sut.Factory.AddDmi(1, observedAt: now.AddDays(-10));
+                await sut.Factory.AddDmi(2, observedAt: now.AddDays(-3));
+                await sut.Factory.AddDmi(3, observedAt: now.AddDays(-1));
 
                 var complex = new ComplexSearchableDmi
                 {
                     Searchable = new SearchableDmi(),
-                    LastXDaysObservedAt = 5
+                    LastXDaysObservedAt = 5,
                 };
 
                 // Act
@@ -257,17 +259,17 @@ namespace Weather.Tests
             public async Task WithOrderByObservedAtAscending_ReturnsEntitiesInAscendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var third = await sut.Factory.AddDmi(id: 1, observedAt: now.AddHours(3));
-                var first = await sut.Factory.AddDmi(id: 2, observedAt: now.AddHours(1));
-                var second = await sut.Factory.AddDmi(id: 3, observedAt: now.AddHours(2));
+                Dmi third = await sut.Factory.AddDmi(1, observedAt: now.AddHours(3));
+                Dmi first = await sut.Factory.AddDmi(2, observedAt: now.AddHours(1));
+                Dmi second = await sut.Factory.AddDmi(3, observedAt: now.AddHours(2));
 
                 var complex = new ComplexSearchableDmi
                 {
                     Searchable = new SearchableDmi(),
-                    OrderByObservedAt = OrderDirection.ASCENDING
+                    OrderByObservedAt = OrderDirection.ASCENDING,
                 };
 
                 // Act
@@ -281,17 +283,17 @@ namespace Weather.Tests
             public async Task WithOrderByObservedAtDescending_ReturnsEntitiesInDescendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var first = await sut.Factory.AddDmi(id: 1, observedAt: now.AddHours(1));
-                var second = await sut.Factory.AddDmi(id: 2, observedAt: now.AddHours(2));
-                var third = await sut.Factory.AddDmi(id: 3, observedAt: now.AddHours(3));
+                Dmi first = await sut.Factory.AddDmi(1, observedAt: now.AddHours(1));
+                Dmi second = await sut.Factory.AddDmi(2, observedAt: now.AddHours(2));
+                Dmi third = await sut.Factory.AddDmi(3, observedAt: now.AddHours(3));
 
                 var complex = new ComplexSearchableDmi
                 {
                     Searchable = new SearchableDmi(),
-                    OrderByObservedAt = OrderDirection.DESCENDING
+                    OrderByObservedAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -305,17 +307,17 @@ namespace Weather.Tests
             public async Task WithOrderByPulledAtAscending_ReturnsEntitiesInAscendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var third = await sut.Factory.AddDmi(id: 1, pulledAt: now.AddHours(3));
-                var first = await sut.Factory.AddDmi(id: 2, pulledAt: now.AddHours(1));
-                var second = await sut.Factory.AddDmi(id: 3, pulledAt: now.AddHours(2));
+                Dmi third = await sut.Factory.AddDmi(1, pulledAt: now.AddHours(3));
+                Dmi first = await sut.Factory.AddDmi(2, pulledAt: now.AddHours(1));
+                Dmi second = await sut.Factory.AddDmi(3, pulledAt: now.AddHours(2));
 
                 var complex = new ComplexSearchableDmi
                 {
                     Searchable = new SearchableDmi(),
-                    OrderByPulledAt = OrderDirection.ASCENDING
+                    OrderByPulledAt = OrderDirection.ASCENDING,
                 };
 
                 // Act
@@ -329,17 +331,17 @@ namespace Weather.Tests
             public async Task WithOrderByPulledAtDescending_ReturnsEntitiesInDescendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var first = await sut.Factory.AddDmi(id: 1, pulledAt: now.AddHours(3));
-                var second = await sut.Factory.AddDmi(id: 2, pulledAt: now.AddHours(2));
-                var third = await sut.Factory.AddDmi(id: 3, pulledAt: now.AddHours(1));
+                Dmi first = await sut.Factory.AddDmi(1, pulledAt: now.AddHours(3));
+                Dmi second = await sut.Factory.AddDmi(2, pulledAt: now.AddHours(2));
+                Dmi third = await sut.Factory.AddDmi(3, pulledAt: now.AddHours(1));
 
                 var complex = new ComplexSearchableDmi
                 {
                     Searchable = new SearchableDmi(),
-                    OrderByPulledAt = OrderDirection.DESCENDING
+                    OrderByPulledAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -350,34 +352,23 @@ namespace Weather.Tests
             }
 
             [Test]
-            public async Task WithStationIdAndParameterIdAndOrderByObservedAtDescending_ReturnsMatchingEntitiesInExpectedOrder()
+            public async Task
+                WithStationIdAndParameterIdAndOrderByObservedAtDescending_ReturnsMatchingEntitiesInExpectedOrder()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                await sut.Factory.AddDmi(
-                    id: 1,
-                    stationId: 999,
-                    parameterId: DmiParameter.TEMP_DRY,
+                await sut.Factory.AddDmi(1, stationId: 999, parameterId: DmiParameter.TEMP_DRY,
                     observedAt: now.AddHours(-1));
 
-                var second = await sut.Factory.AddDmi(
-                    id: 2,
-                    stationId: 123,
-                    parameterId: DmiParameter.TEMP_DRY,
+                Dmi second = await sut.Factory.AddDmi(2, stationId: 123, parameterId: DmiParameter.TEMP_DRY,
                     observedAt: now.AddHours(-3));
 
-                var first = await sut.Factory.AddDmi(
-                    id: 3,
-                    stationId: 123,
-                    parameterId: DmiParameter.TEMP_DRY,
+                Dmi first = await sut.Factory.AddDmi(3, stationId: 123, parameterId: DmiParameter.TEMP_DRY,
                     observedAt: now.AddHours(-2));
 
-                await sut.Factory.AddDmi(
-                    id: 4,
-                    stationId: 123,
-                    parameterId: DmiParameter.HUMIDITY,
+                await sut.Factory.AddDmi(4, stationId: 123, parameterId: DmiParameter.HUMIDITY,
                     observedAt: now.AddHours(-4));
 
                 var complex = new ComplexSearchableDmi
@@ -385,9 +376,9 @@ namespace Weather.Tests
                     Searchable = new SearchableDmi
                     {
                         StationId = 123,
-                        ParameterId = DmiParameter.TEMP_DRY
+                        ParameterId = DmiParameter.TEMP_DRY,
                     },
-                    OrderByObservedAt = OrderDirection.DESCENDING
+                    OrderByObservedAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -399,42 +390,31 @@ namespace Weather.Tests
             }
 
             [Test]
-            public async Task WithDmiIdAndObservedAtAfterAndOrderByObservedAtAscending_ReturnsMatchingEntitiesInExpectedOrder()
+            public async Task
+                WithDmiIdAndObservedAtAfterAndOrderByObservedAtAscending_ReturnsMatchingEntitiesInExpectedOrder()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddHours(-4);
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddHours(-4);
                 var matchingDmiId = Guid.NewGuid();
 
-                await sut.Factory.AddDmi(
-                    id: 1,
-                    dmiId: Guid.NewGuid(),
-                    observedAt: now.AddHours(-2));
+                await sut.Factory.AddDmi(1, Guid.NewGuid(), observedAt: now.AddHours(-2));
 
-                var first = await sut.Factory.AddDmi(
-                    id: 2,
-                    dmiId: matchingDmiId,
-                    observedAt: now.AddHours(-3));
+                Dmi first = await sut.Factory.AddDmi(2, matchingDmiId, observedAt: now.AddHours(-3));
 
-                var second = await sut.Factory.AddDmi(
-                    id: 3,
-                    dmiId: matchingDmiId,
-                    observedAt: now.AddHours(-1));
+                Dmi second = await sut.Factory.AddDmi(3, matchingDmiId, observedAt: now.AddHours(-1));
 
-                await sut.Factory.AddDmi(
-                    id: 4,
-                    dmiId: matchingDmiId,
-                    observedAt: now.AddHours(-5));
+                await sut.Factory.AddDmi(4, matchingDmiId, observedAt: now.AddHours(-5));
 
                 var complex = new ComplexSearchableDmi
                 {
                     Searchable = new SearchableDmi
                     {
-                        DmiId = matchingDmiId
+                        DmiId = matchingDmiId,
                     },
                     ObservedAtAfterThisDateTime = threshold,
-                    OrderByObservedAt = OrderDirection.ASCENDING
+                    OrderByObservedAt = OrderDirection.ASCENDING,
                 };
 
                 // Act
@@ -450,48 +430,33 @@ namespace Weather.Tests
             public async Task WithStationIdAndObservedAtRangeAndPulledAtRange_ReturnsOnlyEntitiesMatchingAllCriteria()
             {
                 // Arrange
-                using var sut = this.CreateDmiQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var observedAfter = now.AddHours(-6);
-                var observedBefore = now.AddHours(-2);
-                var pulledAfter = now.AddHours(-5);
-                var pulledBefore = now.AddHours(-1);
+                DateTime observedAfter = now.AddHours(-6);
+                DateTime observedBefore = now.AddHours(-2);
+                DateTime pulledAfter = now.AddHours(-5);
+                DateTime pulledBefore = now.AddHours(-1);
 
-                var match = await sut.Factory.AddDmi(
-                    id: 1,
-                    stationId: 123,
-                    observedAt: now.AddHours(-4),
+                Dmi match = await sut.Factory.AddDmi(1, stationId: 123, observedAt: now.AddHours(-4),
                     pulledAt: now.AddHours(-3));
 
-                await sut.Factory.AddDmi(
-                    id: 2,
-                    stationId: 999,
-                    observedAt: now.AddHours(-4),
-                    pulledAt: now.AddHours(-3));
+                await sut.Factory.AddDmi(2, stationId: 999, observedAt: now.AddHours(-4), pulledAt: now.AddHours(-3));
 
-                await sut.Factory.AddDmi(
-                    id: 3,
-                    stationId: 123,
-                    observedAt: now.AddHours(-7),
-                    pulledAt: now.AddHours(-3));
+                await sut.Factory.AddDmi(3, stationId: 123, observedAt: now.AddHours(-7), pulledAt: now.AddHours(-3));
 
-                await sut.Factory.AddDmi(
-                    id: 4,
-                    stationId: 123,
-                    observedAt: now.AddHours(-4),
-                    pulledAt: now);
+                await sut.Factory.AddDmi(4, stationId: 123, observedAt: now.AddHours(-4), pulledAt: now);
 
                 var complex = new ComplexSearchableDmi
                 {
                     Searchable = new SearchableDmi
                     {
-                        StationId = 123
+                        StationId = 123,
                     },
                     ObservedAtAfterThisDateTime = observedAfter,
                     ObservedAtBeforeThisDateTime = observedBefore,
                     PulledAtAfterThisDateTime = pulledAfter,
-                    PulledAtBeforeThisDateTime = pulledBefore
+                    PulledAtBeforeThisDateTime = pulledBefore,
                 };
 
                 // Act

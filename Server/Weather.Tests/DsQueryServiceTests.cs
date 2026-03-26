@@ -1,8 +1,10 @@
 ﻿using FluentAssertions;
 using Weather.Abstraction.Enum;
 using Weather.Model.ComplexSearchable;
+using Weather.Model.Entity;
 using Weather.Model.Searchable;
 using Weather.Tests.Core;
+using Weather.Tests.Core.SystemUnderTests;
 
 namespace Weather.Tests
 {
@@ -14,11 +16,11 @@ namespace Weather.Tests
             public async Task ReturnsAllStoredEntities()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
 
-                await sut.Factory.AddDs(id: 1);
-                await sut.Factory.AddDs(id: 2);
-                await sut.Factory.AddDs(id: 3);
+                await sut.Factory.AddDs(1);
+                await sut.Factory.AddDs(2);
+                await sut.Factory.AddDs(3);
 
                 // Act
                 var result = await sut.Service.GetAllEntities();
@@ -34,17 +36,17 @@ namespace Weather.Tests
             public async Task WithMatchingId_ReturnsEntity()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
 
-                var created = await sut.Factory.AddDs(id: 1);
+                Ds created = await sut.Factory.AddDs(1);
 
                 var searchable = new SearchableDs
                 {
-                    Id = created.Id
+                    Id = created.Id,
                 };
 
                 // Act
-                var result = await sut.Service.GetEntity(searchable);
+                Ds? result = await sut.Service.GetEntity(searchable);
 
                 // Assert
                 result.Should().NotBeNull();
@@ -55,15 +57,15 @@ namespace Weather.Tests
             public async Task WithNoMatch_ReturnsNull()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
 
                 var searchable = new SearchableDs
                 {
-                    Id = 999999
+                    Id = 999999,
                 };
 
                 // Act
-                var result = await sut.Service.GetEntity(searchable);
+                Ds? result = await sut.Service.GetEntity(searchable);
 
                 // Assert
                 result.Should().BeNull();
@@ -76,17 +78,17 @@ namespace Weather.Tests
             public async Task WithReaderId_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
 
                 var matchingReaderId = Guid.NewGuid();
 
-                await sut.Factory.AddDs(id: 1, readerId: matchingReaderId);
-                await sut.Factory.AddDs(id: 2, readerId: matchingReaderId);
-                await sut.Factory.AddDs(id: 3, readerId: Guid.NewGuid());
+                await sut.Factory.AddDs(1, matchingReaderId);
+                await sut.Factory.AddDs(2, matchingReaderId);
+                await sut.Factory.AddDs(3, Guid.NewGuid());
 
                 var searchable = new SearchableDs
                 {
-                    ReaderId = matchingReaderId
+                    ReaderId = matchingReaderId,
                 };
 
                 // Act
@@ -101,15 +103,15 @@ namespace Weather.Tests
             public async Task WithLocation_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
 
-                await sut.Factory.AddDs(id: 1, location: Location.INSIDE);
-                await sut.Factory.AddDs(id: 2, location: Location.INSIDE);
-                await sut.Factory.AddDs(id: 3, location: Location.OUTSIDE);
+                await sut.Factory.AddDs(1, location: Location.INSIDE);
+                await sut.Factory.AddDs(2, location: Location.INSIDE);
+                await sut.Factory.AddDs(3, location: Location.OUTSIDE);
 
                 var searchable = new SearchableDs
                 {
-                    Location = Location.INSIDE
+                    Location = Location.INSIDE,
                 };
 
                 // Act
@@ -127,23 +129,23 @@ namespace Weather.Tests
             public async Task ReturnsFirstMatchingEntity()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
 
                 var readerId = Guid.NewGuid();
 
-                await sut.Factory.AddDs(id: 1, readerId: readerId);
-                await sut.Factory.AddDs(id: 2, readerId: readerId);
+                await sut.Factory.AddDs(1, readerId);
+                await sut.Factory.AddDs(2, readerId);
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs
                     {
-                        ReaderId = readerId
-                    }
+                        ReaderId = readerId,
+                    },
                 };
 
                 // Act
-                var result = await sut.Service.GetEntityComplex(complex);
+                Ds? result = await sut.Service.GetEntityComplex(complex);
 
                 // Assert
                 result.Should().NotBeNull();
@@ -157,18 +159,18 @@ namespace Weather.Tests
             public async Task WithObservedAtAfterThisDateTime_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddDays(-2);
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddDays(-2);
 
-                await sut.Factory.AddDs(id: 1, observedAt: now.AddDays(-4));
-                await sut.Factory.AddDs(id: 2, observedAt: now.AddDays(-1));
-                await sut.Factory.AddDs(id: 3, observedAt: now);
+                await sut.Factory.AddDs(1, observedAt: now.AddDays(-4));
+                await sut.Factory.AddDs(2, observedAt: now.AddDays(-1));
+                await sut.Factory.AddDs(3, observedAt: now);
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs(),
-                    ObservedAtAfterThisDateTime = threshold
+                    ObservedAtAfterThisDateTime = threshold,
                 };
 
                 // Act
@@ -183,18 +185,18 @@ namespace Weather.Tests
             public async Task WithObservedAtBeforeThisDateTime_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddDays(-2);
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddDays(-2);
 
-                await sut.Factory.AddDs(id: 1, observedAt: now.AddDays(-5));
-                await sut.Factory.AddDs(id: 2, observedAt: now.AddDays(-3));
-                await sut.Factory.AddDs(id: 3, observedAt: now.AddDays(-1));
+                await sut.Factory.AddDs(1, observedAt: now.AddDays(-5));
+                await sut.Factory.AddDs(2, observedAt: now.AddDays(-3));
+                await sut.Factory.AddDs(3, observedAt: now.AddDays(-1));
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs(),
-                    ObservedAtBeforeThisDateTime = threshold
+                    ObservedAtBeforeThisDateTime = threshold,
                 };
 
                 // Act
@@ -209,18 +211,18 @@ namespace Weather.Tests
             public async Task WithPulledAtAfterThisDateTime_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddDays(-2);
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddDays(-2);
 
-                await sut.Factory.AddDs(id: 1, pulledAt: now.AddDays(-5));
-                await sut.Factory.AddDs(id: 2, pulledAt: now.AddDays(-1));
-                await sut.Factory.AddDs(id: 3, pulledAt: now);
+                await sut.Factory.AddDs(1, pulledAt: now.AddDays(-5));
+                await sut.Factory.AddDs(2, pulledAt: now.AddDays(-1));
+                await sut.Factory.AddDs(3, pulledAt: now);
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs(),
-                    PulledAtAfterThisDateTime = threshold
+                    PulledAtAfterThisDateTime = threshold,
                 };
 
                 // Act
@@ -235,18 +237,18 @@ namespace Weather.Tests
             public async Task WithPulledAtBeforeThisDateTime_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddDays(-2);
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddDays(-2);
 
-                await sut.Factory.AddDs(id: 1, pulledAt: now.AddDays(-5));
-                await sut.Factory.AddDs(id: 2, pulledAt: now.AddDays(-3));
-                await sut.Factory.AddDs(id: 3, pulledAt: now.AddDays(-1));
+                await sut.Factory.AddDs(1, pulledAt: now.AddDays(-5));
+                await sut.Factory.AddDs(2, pulledAt: now.AddDays(-3));
+                await sut.Factory.AddDs(3, pulledAt: now.AddDays(-1));
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs(),
-                    PulledAtBeforeThisDateTime = threshold
+                    PulledAtBeforeThisDateTime = threshold,
                 };
 
                 // Act
@@ -261,17 +263,17 @@ namespace Weather.Tests
             public async Task WithLastXDaysObservedAt_ReturnsOnlyRecentEntities()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                await sut.Factory.AddDs(id: 1, observedAt: now.AddDays(-10));
-                await sut.Factory.AddDs(id: 2, observedAt: now.AddDays(-3));
-                await sut.Factory.AddDs(id: 3, observedAt: now.AddDays(-1));
+                await sut.Factory.AddDs(1, observedAt: now.AddDays(-10));
+                await sut.Factory.AddDs(2, observedAt: now.AddDays(-3));
+                await sut.Factory.AddDs(3, observedAt: now.AddDays(-1));
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs(),
-                    LastXDaysObservedAt = 5
+                    LastXDaysObservedAt = 5,
                 };
 
                 // Act
@@ -286,17 +288,17 @@ namespace Weather.Tests
             public async Task WithLastXDaysPulledAt_ReturnsOnlyRecentEntities()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                await sut.Factory.AddDs(id: 1, pulledAt: now.AddDays(-10));
-                await sut.Factory.AddDs(id: 2, pulledAt: now.AddDays(-3));
-                await sut.Factory.AddDs(id: 3, pulledAt: now.AddDays(-1));
+                await sut.Factory.AddDs(1, pulledAt: now.AddDays(-10));
+                await sut.Factory.AddDs(2, pulledAt: now.AddDays(-3));
+                await sut.Factory.AddDs(3, pulledAt: now.AddDays(-1));
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs(),
-                    LastXDaysPulledAt = 5
+                    LastXDaysPulledAt = 5,
                 };
 
                 // Act
@@ -311,17 +313,17 @@ namespace Weather.Tests
             public async Task WithOrderByObservedAtAscending_ReturnsEntitiesInAscendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var third = await sut.Factory.AddDs(id: 1, observedAt: now.AddHours(3));
-                var first = await sut.Factory.AddDs(id: 2, observedAt: now.AddHours(1));
-                var second = await sut.Factory.AddDs(id: 3, observedAt: now.AddHours(2));
+                Ds third = await sut.Factory.AddDs(1, observedAt: now.AddHours(3));
+                Ds first = await sut.Factory.AddDs(2, observedAt: now.AddHours(1));
+                Ds second = await sut.Factory.AddDs(3, observedAt: now.AddHours(2));
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs(),
-                    OrderByObservedAt = OrderDirection.ASCENDING
+                    OrderByObservedAt = OrderDirection.ASCENDING,
                 };
 
                 // Act
@@ -335,17 +337,17 @@ namespace Weather.Tests
             public async Task WithOrderByObservedAtDescending_ReturnsEntitiesInDescendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var first = await sut.Factory.AddDs(id: 1, observedAt: now.AddHours(1));
-                var second = await sut.Factory.AddDs(id: 2, observedAt: now.AddHours(2));
-                var third = await sut.Factory.AddDs(id: 3, observedAt: now.AddHours(3));
+                Ds first = await sut.Factory.AddDs(1, observedAt: now.AddHours(1));
+                Ds second = await sut.Factory.AddDs(2, observedAt: now.AddHours(2));
+                Ds third = await sut.Factory.AddDs(3, observedAt: now.AddHours(3));
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs(),
-                    OrderByObservedAt = OrderDirection.DESCENDING
+                    OrderByObservedAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -359,17 +361,17 @@ namespace Weather.Tests
             public async Task WithOrderByPulledAtAscending_ReturnsEntitiesInAscendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var third = await sut.Factory.AddDs(id: 1, pulledAt: now.AddHours(3));
-                var first = await sut.Factory.AddDs(id: 2, pulledAt: now.AddHours(1));
-                var second = await sut.Factory.AddDs(id: 3, pulledAt: now.AddHours(2));
+                Ds third = await sut.Factory.AddDs(1, pulledAt: now.AddHours(3));
+                Ds first = await sut.Factory.AddDs(2, pulledAt: now.AddHours(1));
+                Ds second = await sut.Factory.AddDs(3, pulledAt: now.AddHours(2));
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs(),
-                    OrderByPulledAt = OrderDirection.ASCENDING
+                    OrderByPulledAt = OrderDirection.ASCENDING,
                 };
 
                 // Act
@@ -383,17 +385,17 @@ namespace Weather.Tests
             public async Task WithOrderByPulledAtDescending_ReturnsEntitiesInDescendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var first = await sut.Factory.AddDs(id: 1, pulledAt: now.AddHours(3));
-                var second = await sut.Factory.AddDs(id: 2, pulledAt: now.AddHours(2));
-                var third = await sut.Factory.AddDs(id: 3, pulledAt: now.AddHours(1));
+                Ds first = await sut.Factory.AddDs(1, pulledAt: now.AddHours(3));
+                Ds second = await sut.Factory.AddDs(2, pulledAt: now.AddHours(2));
+                Ds third = await sut.Factory.AddDs(3, pulledAt: now.AddHours(1));
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs(),
-                    OrderByPulledAt = OrderDirection.DESCENDING
+                    OrderByPulledAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -404,28 +406,29 @@ namespace Weather.Tests
             }
 
             [Test]
-            public async Task WithLocationAndObservedAtAfterAndOrderByObservedAtAscending_ReturnsMatchingEntitiesInExpectedOrder()
+            public async Task
+                WithLocationAndObservedAtAfterAndOrderByObservedAtAscending_ReturnsMatchingEntitiesInExpectedOrder()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddHours(-4);
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddHours(-4);
 
-                await sut.Factory.AddDs(id: 1, location: Location.OUTSIDE, observedAt: now.AddHours(-3));
+                await sut.Factory.AddDs(1, location: Location.OUTSIDE, observedAt: now.AddHours(-3));
 
-                var first = await sut.Factory.AddDs(id: 2, location: Location.INSIDE, observedAt: now.AddHours(-2));
-                var second = await sut.Factory.AddDs(id: 3, location: Location.INSIDE, observedAt: now.AddHours(-1));
+                Ds first = await sut.Factory.AddDs(2, location: Location.INSIDE, observedAt: now.AddHours(-2));
+                Ds second = await sut.Factory.AddDs(3, location: Location.INSIDE, observedAt: now.AddHours(-1));
 
-                await sut.Factory.AddDs(id: 4, location: Location.INSIDE, observedAt: now.AddHours(-5));
+                await sut.Factory.AddDs(4, location: Location.INSIDE, observedAt: now.AddHours(-5));
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs
                     {
-                        Location = Location.INSIDE
+                        Location = Location.INSIDE,
                     },
                     ObservedAtAfterThisDateTime = threshold,
-                    OrderByObservedAt = OrderDirection.ASCENDING
+                    OrderByObservedAt = OrderDirection.ASCENDING,
                 };
 
                 // Act
@@ -438,29 +441,30 @@ namespace Weather.Tests
             }
 
             [Test]
-            public async Task WithReaderIdAndPulledAtBeforeAndOrderByPulledAtDescending_ReturnsMatchingEntitiesInExpectedOrder()
+            public async Task
+                WithReaderIdAndPulledAtBeforeAndOrderByPulledAtDescending_ReturnsMatchingEntitiesInExpectedOrder()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
                 var readerId = Guid.NewGuid();
-                var threshold = now.AddHours(-1);
+                DateTime threshold = now.AddHours(-1);
 
-                await sut.Factory.AddDs(id: 1, readerId: Guid.NewGuid(), pulledAt: now.AddHours(-2));
+                await sut.Factory.AddDs(1, Guid.NewGuid(), pulledAt: now.AddHours(-2));
 
-                var second = await sut.Factory.AddDs(id: 2, readerId: readerId, pulledAt: now.AddHours(-3));
-                var first = await sut.Factory.AddDs(id: 3, readerId: readerId, pulledAt: now.AddHours(-2));
+                Ds second = await sut.Factory.AddDs(2, readerId, pulledAt: now.AddHours(-3));
+                Ds first = await sut.Factory.AddDs(3, readerId, pulledAt: now.AddHours(-2));
 
-                await sut.Factory.AddDs(id: 4, readerId: readerId, pulledAt: now);
+                await sut.Factory.AddDs(4, readerId, pulledAt: now);
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs
                     {
-                        ReaderId = readerId
+                        ReaderId = readerId,
                     },
                     PulledAtBeforeThisDateTime = threshold,
-                    OrderByPulledAt = OrderDirection.DESCENDING
+                    OrderByPulledAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -473,27 +477,28 @@ namespace Weather.Tests
             }
 
             [Test]
-            public async Task WithLocationAndLastXDaysObservedAtAndOrderByObservedAtDescending_ReturnsOnlyRecentMatchingEntitiesInExpectedOrder()
+            public async Task
+                WithLocationAndLastXDaysObservedAtAndOrderByObservedAtDescending_ReturnsOnlyRecentMatchingEntitiesInExpectedOrder()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                await sut.Factory.AddDs(id: 1, location: Location.INSIDE, observedAt: now.AddDays(-10));
+                await sut.Factory.AddDs(1, location: Location.INSIDE, observedAt: now.AddDays(-10));
 
-                var second = await sut.Factory.AddDs(id: 2, location: Location.INSIDE, observedAt: now.AddDays(-3));
-                var first = await sut.Factory.AddDs(id: 3, location: Location.INSIDE, observedAt: now.AddDays(-1));
+                Ds second = await sut.Factory.AddDs(2, location: Location.INSIDE, observedAt: now.AddDays(-3));
+                Ds first = await sut.Factory.AddDs(3, location: Location.INSIDE, observedAt: now.AddDays(-1));
 
-                await sut.Factory.AddDs(id: 4, location: Location.OUTSIDE, observedAt: now.AddDays(-2));
+                await sut.Factory.AddDs(4, location: Location.OUTSIDE, observedAt: now.AddDays(-2));
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs
                     {
-                        Location = Location.INSIDE
+                        Location = Location.INSIDE,
                     },
                     LastXDaysObservedAt = 5,
-                    OrderByObservedAt = OrderDirection.DESCENDING
+                    OrderByObservedAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -509,48 +514,35 @@ namespace Weather.Tests
             public async Task WithLocationAndObservedAtRangeAndPulledAtRange_ReturnsOnlyEntitiesMatchingAllCriteria()
             {
                 // Arrange
-                using var sut = this.CreateDsQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var observedAfter = now.AddHours(-6);
-                var observedBefore = now.AddHours(-2);
-                var pulledAfter = now.AddHours(-5);
-                var pulledBefore = now.AddHours(-1);
+                DateTime observedAfter = now.AddHours(-6);
+                DateTime observedBefore = now.AddHours(-2);
+                DateTime pulledAfter = now.AddHours(-5);
+                DateTime pulledBefore = now.AddHours(-1);
 
-                var match = await sut.Factory.AddDs(
-                    id: 1,
-                    location: Location.INSIDE,
-                    observedAt: now.AddHours(-4),
+                Ds match = await sut.Factory.AddDs(1, location: Location.INSIDE, observedAt: now.AddHours(-4),
                     pulledAt: now.AddHours(-3));
 
-                await sut.Factory.AddDs(
-                    id: 2,
-                    location: Location.OUTSIDE,
-                    observedAt: now.AddHours(-4),
+                await sut.Factory.AddDs(2, location: Location.OUTSIDE, observedAt: now.AddHours(-4),
                     pulledAt: now.AddHours(-3));
 
-                await sut.Factory.AddDs(
-                    id: 3,
-                    location: Location.INSIDE,
-                    observedAt: now.AddHours(-7),
+                await sut.Factory.AddDs(3, location: Location.INSIDE, observedAt: now.AddHours(-7),
                     pulledAt: now.AddHours(-3));
 
-                await sut.Factory.AddDs(
-                    id: 4,
-                    location: Location.INSIDE,
-                    observedAt: now.AddHours(-4),
-                    pulledAt: now);
+                await sut.Factory.AddDs(4, location: Location.INSIDE, observedAt: now.AddHours(-4), pulledAt: now);
 
                 var complex = new ComplexSearchableDs
                 {
                     Searchable = new SearchableDs
                     {
-                        Location = Location.INSIDE
+                        Location = Location.INSIDE,
                     },
                     ObservedAtAfterThisDateTime = observedAfter,
                     ObservedAtBeforeThisDateTime = observedBefore,
                     PulledAtAfterThisDateTime = pulledAfter,
-                    PulledAtBeforeThisDateTime = pulledBefore
+                    PulledAtBeforeThisDateTime = pulledBefore,
                 };
 
                 // Act

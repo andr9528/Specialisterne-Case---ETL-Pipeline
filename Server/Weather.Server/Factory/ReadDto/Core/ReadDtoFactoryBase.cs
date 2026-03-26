@@ -8,7 +8,7 @@ using Weather.Model.Extensions;
 namespace Weather.Server.Factory.ReadDto.Core
 {
     public abstract class ReadDtoFactoryBase<TEntity, TDto, TFactory> : IReadDtoFactory<TEntity, TDto>
-        where TEntity : class, IEntity 
+        where TEntity : class, IEntity
         where TDto : class, IReadDto
         where TFactory : class, IReadDtoFactory<TEntity, TDto>
     {
@@ -23,7 +23,7 @@ namespace Weather.Server.Factory.ReadDto.Core
         {
             ArgumentNullException.ThrowIfNull(entity);
 
-            TDto dto = entity.PackToReadDto<TDto>();
+            var dto = entity.PackToReadDto<TDto>();
             MapCommonProperties(entity, dto);
             MapAdditionalProperties(entity, dto);
 
@@ -38,9 +38,7 @@ namespace Weather.Server.Factory.ReadDto.Core
             ArgumentNullException.ThrowIfNull(dto);
 
             if (entity is not ISensor sensor)
-            {
                 return;
-            }
 
             dto.LocalObservedAtHumanReadable = FormatAsHumanReadable(sensor.ObservedAt);
             dto.LocalPulledAtHumanReadable = FormatAsHumanReadable(sensor.PulledAt);
@@ -49,16 +47,14 @@ namespace Weather.Server.Factory.ReadDto.Core
         protected virtual string FormatAsHumanReadable(DateTime value)
         {
             if (value.Kind == DateTimeKind.Unspecified)
-            {
                 logger.LogWarning("DateTime with Unspecified kind encountered: {Value}", value);
-            }
 
             DateTime localTime = value.Kind switch
             {
                 DateTimeKind.Utc => value.ToLocalTime(),
                 DateTimeKind.Local => value,
                 DateTimeKind.Unspecified => DateTime.SpecifyKind(value, DateTimeKind.Utc).ToLocalTime(),
-                _ => throw new ArgumentOutOfRangeException()
+                var _ => throw new ArgumentOutOfRangeException(),
             };
 
             return localTime.ToString("dd-MM-yyyy HH:mm");

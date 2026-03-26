@@ -14,7 +14,8 @@ namespace Weather.Server.Controllers
     {
         /// <inheritdoc />
         public DsController(
-            EntityControllerDependencies<Ds, SearchableDs, ReadDtoDs> dependencies, ILogger<DsController> logger) : base(dependencies, logger)
+            EntityControllerDependencies<Ds, SearchableDs, ReadDtoDs> dependencies,
+            ILogger<DsController> logger) : base(dependencies, logger)
         {
         }
     }

@@ -77,7 +77,7 @@ namespace Weather.Startup
 
             ConfigureApplication(app);
 
-            foreach (IApplicationStartupModule<TApplicationBuilder> module in applicationModules)
+            foreach (var module in applicationModules)
                 module.ConfigureApplication(app);
 
             return app;

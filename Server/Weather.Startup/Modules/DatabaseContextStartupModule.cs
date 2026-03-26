@@ -15,9 +15,10 @@ namespace Weather.Startup.Modules
         private readonly StartupHandling startupHandling;
         protected ILogger<DatabaseContextStartupModule<TContext>>? logger;
 
-        public DatabaseContextStartupModule(SetupOptionsDelegate setup, StartupHandling startupHandling = StartupHandling.MIGRATE)
+        public DatabaseContextStartupModule(
+            SetupOptionsDelegate setup, StartupHandling startupHandling = StartupHandling.MIGRATE)
         {
-            if (typeof(TContext) is { IsAbstract: true, })
+            if (typeof(TContext) is {IsAbstract: true,})
                 throw new ArgumentException($"Invalid type argument supplied to '{nameof(TContext)}'");
 
             setupOptions = setup ?? throw new ArgumentNullException(nameof(setup));

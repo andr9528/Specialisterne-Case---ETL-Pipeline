@@ -8,71 +8,51 @@ namespace Weather.Persistence.Extensions
     public static class QueryableExtensions
     {
         public static IQueryable<TEntity> ApplyOrderingQueryArguments<TEntity, TSearchable>(
-            this IQueryable<TEntity> query,
-            IComplexSearchable<TSearchable> complex)
-            where TEntity : class, IEntity, ISensor
-            where TSearchable : class, ISearchable, new()
+            this IQueryable<TEntity> query, IComplexSearchable<TSearchable> complex)
+            where TEntity : class, IEntity, ISensor where TSearchable : class, ISearchable, new()
         {
-            IOrderedQueryable<TEntity>? orderedQuery = ApplyOrdering(
-                query,
-                complex.OrderByObservedAt,
-                x => x.ObservedAt);
+            var orderedQuery = ApplyOrdering(query, complex.OrderByObservedAt, x => x.ObservedAt);
 
-            orderedQuery = ApplyThenOrdering(
-                query,
-                orderedQuery,
-                complex.OrderByPulledAt,
-                x => x.PulledAt);
+            orderedQuery = ApplyThenOrdering(query, orderedQuery, complex.OrderByPulledAt, x => x.PulledAt);
 
             return orderedQuery ?? query;
         }
 
         private static IOrderedQueryable<TEntity>? ApplyOrdering<TEntity>(
-            IQueryable<TEntity> query,
-            OrderDirection? direction,
-            Expression<Func<TEntity, DateTime>> selector)
+            IQueryable<TEntity> query, OrderDirection? direction, Expression<Func<TEntity, DateTime>> selector)
             where TEntity : class, IEntity, ISensor
         {
             if (!direction.HasValue)
-            {
                 return null;
-            }
 
             return direction.Value switch
             {
                 OrderDirection.ASCENDING => query.OrderBy(selector),
                 OrderDirection.DESCENDING => query.OrderByDescending(selector),
-                _ => throw new ArgumentOutOfRangeException(nameof(direction))
+                var _ => throw new ArgumentOutOfRangeException(nameof(direction)),
             };
         }
 
         private static IOrderedQueryable<TEntity>? ApplyThenOrdering<TEntity>(
-            IQueryable<TEntity> query,
-            IOrderedQueryable<TEntity>? orderedQuery,
-            OrderDirection? direction,
-            Expression<Func<TEntity, DateTime>> selector)
-            where TEntity : class, IEntity, ISensor
+            IQueryable<TEntity> query, IOrderedQueryable<TEntity>? orderedQuery, OrderDirection? direction,
+            Expression<Func<TEntity, DateTime>> selector) where TEntity : class, IEntity, ISensor
         {
             if (!direction.HasValue)
-            {
                 return orderedQuery;
-            }
 
             if (orderedQuery is null)
-            {
                 return direction.Value switch
                 {
                     OrderDirection.ASCENDING => query.OrderBy(selector),
                     OrderDirection.DESCENDING => query.OrderByDescending(selector),
-                    _ => throw new ArgumentOutOfRangeException(nameof(direction))
+                    var _ => throw new ArgumentOutOfRangeException(nameof(direction)),
                 };
-            }
 
             return direction.Value switch
             {
                 OrderDirection.ASCENDING => orderedQuery.ThenBy(selector),
                 OrderDirection.DESCENDING => orderedQuery.ThenByDescending(selector),
-                _ => throw new ArgumentOutOfRangeException(nameof(direction))
+                var _ => throw new ArgumentOutOfRangeException(nameof(direction)),
             };
         }
 
@@ -81,12 +61,10 @@ namespace Weather.Persistence.Extensions
             where TEntity : class, IEntity
         {
             if (!lastXDays.HasValue || lastXDays.Value <= 0)
-            {
                 return query;
-            }
 
-            var cutoff = DateTime.UtcNow.AddDays(-lastXDays.Value);
-            var body = Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(cutoff));
+            DateTime cutoff = DateTime.UtcNow.AddDays(-lastXDays.Value);
+            BinaryExpression body = Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(cutoff));
             var lambda = Expression.Lambda<Func<TEntity, bool>>(body, selector.Parameters);
 
             return query.Where(lambda);
@@ -97,11 +75,9 @@ namespace Weather.Persistence.Extensions
             where TEntity : class, IEntity
         {
             if (!after.HasValue)
-            {
                 return query;
-            }
 
-            var body = Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(after.Value));
+            BinaryExpression body = Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(after.Value));
             var lambda = Expression.Lambda<Func<TEntity, bool>>(body, selector.Parameters);
 
             return query.Where(lambda);
@@ -112,11 +88,9 @@ namespace Weather.Persistence.Extensions
             where TEntity : class, IEntity
         {
             if (!before.HasValue)
-            {
                 return query;
-            }
 
-            var body = Expression.LessThanOrEqual(selector.Body, Expression.Constant(before.Value));
+            BinaryExpression body = Expression.LessThanOrEqual(selector.Body, Expression.Constant(before.Value));
             var lambda = Expression.Lambda<Func<TEntity, bool>>(body, selector.Parameters);
 
             return query.Where(lambda);

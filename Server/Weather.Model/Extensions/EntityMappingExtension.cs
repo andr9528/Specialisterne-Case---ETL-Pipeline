@@ -27,9 +27,7 @@ namespace Weather.Model.Extensions
             object? dtoInstance = Activator.CreateInstance(typeof(TDto));
 
             if (dtoInstance is not TDto dto)
-            {
                 throw new InvalidOperationException($"Could not create an instance of {typeof(TDto).Name}.");
-            }
 
             CopyMatchingProperties(entity, dto);
 
@@ -44,7 +42,7 @@ namespace Weather.Model.Extensions
             Type sourceType = source.GetType();
             Type targetType = target.GetType();
 
-            PropertyMap[] propertyMaps = CachedPropertyMaps.GetOrAdd((sourceType, targetType),
+            var propertyMaps = CachedPropertyMaps.GetOrAdd((sourceType, targetType),
                 static key => BuildPropertyMaps(key.Source, key.Target));
 
             foreach (PropertyMap propertyMap in propertyMaps)
@@ -56,26 +54,21 @@ namespace Weather.Model.Extensions
 
         private static PropertyMap[] BuildPropertyMaps(Type sourceType, Type targetType)
         {
-            PropertyInfo[] sourceProperties = sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            var sourceProperties = sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(property => property.CanRead).ToArray();
 
-            Dictionary<string, PropertyInfo> targetProperties = targetType
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(property => property.CanWrite)
-                .ToDictionary(property => property.Name);
+            var targetProperties = targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(property => property.CanWrite).ToDictionary(property => property.Name);
 
             List<PropertyMap> propertyMaps = [];
 
             foreach (PropertyInfo sourceProperty in sourceProperties)
             {
                 if (!targetProperties.TryGetValue(sourceProperty.Name, out PropertyInfo? targetProperty))
-                {
                     continue;
-                }
 
                 if (!targetProperty.PropertyType.IsAssignableFrom(sourceProperty.PropertyType))
-                {
                     continue;
-                }
 
                 propertyMaps.Add(new PropertyMap(sourceProperty, targetProperty));
             }
@@ -89,7 +82,7 @@ namespace Weather.Model.Extensions
 
             Type type = dto.GetType();
 
-            PropertyInfo[] requiredProperties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            var requiredProperties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.GetCustomAttribute<RequiredMemberAttribute>() is not null).ToArray();
 
             foreach (PropertyInfo property in requiredProperties)
@@ -97,19 +90,15 @@ namespace Weather.Model.Extensions
                 object? value = property.GetValue(dto);
 
                 if (IsUnset(value, property.PropertyType))
-                {
                     throw new InvalidOperationException(
                         $"Required property '{property.Name}' on '{type.Name}' was not set during mapping.");
-                }
             }
         }
 
         private static bool IsUnset(object? value, Type propertyType)
         {
             if (value is null)
-            {
                 return true;
-            }
 
             if (!propertyType.IsValueType)
                 return false;

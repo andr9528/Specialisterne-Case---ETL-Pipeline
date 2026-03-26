@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using Weather.Services;
 
 namespace Weather.Persistence
@@ -14,7 +15,7 @@ namespace Weather.Persistence
         {
             var configurationService = new ConfigurationService();
 
-            var configuration = configurationService.BuildConfiguration();
+            IConfiguration configuration = configurationService.BuildConfiguration();
 
             var optionsBuilder = new DbContextOptionsBuilder<WeatherDatabaseContext>();
             configurationService.ConfigureDatabaseOptions(optionsBuilder);

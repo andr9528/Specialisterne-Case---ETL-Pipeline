@@ -53,7 +53,7 @@ namespace Weather.Model.Entity
                 DmiParameter.TEMP_DRY => "°C",
                 DmiParameter.HUMIDITY => "%",
                 DmiParameter.PRESSURE => "hPa",
-                _ => throw new ArgumentOutOfRangeException($"{nameof(ParameterId)} contained an unexpected value"),
+                var _ => throw new ArgumentOutOfRangeException($"{nameof(ParameterId)} contained an unexpected value"),
             };
         }
 

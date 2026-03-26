@@ -24,7 +24,7 @@ namespace Weather.Persistence.Core
 
             return;
 
-            switch (this.type)
+            switch (type)
             {
                 case DatabaseType.SQL_LITE:
                     builder.Property(x => x.Version).IsRowVersion().HasConversion(new SqliteTimestampConverter())
@@ -36,7 +36,5 @@ namespace Weather.Persistence.Core
                     break;
             }
         }
-
-        
     }
 }

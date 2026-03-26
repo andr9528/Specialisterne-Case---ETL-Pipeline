@@ -1,8 +1,10 @@
 ﻿using FluentAssertions;
 using Weather.Abstraction.Enum;
 using Weather.Model.ComplexSearchable;
+using Weather.Model.Entity;
 using Weather.Model.Searchable;
 using Weather.Tests.Core;
+using Weather.Tests.Core.SystemUnderTests;
 
 namespace Weather.Tests
 {
@@ -14,11 +16,11 @@ namespace Weather.Tests
             public async Task ReturnsAllStoredEntities()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
 
-                await sut.Factory.AddScd(id: 1);
-                await sut.Factory.AddScd(id: 2);
-                await sut.Factory.AddScd(id: 3);
+                await sut.Factory.AddScd(1);
+                await sut.Factory.AddScd(2);
+                await sut.Factory.AddScd(3);
 
                 // Act
                 var result = await sut.Service.GetAllEntities();
@@ -34,17 +36,17 @@ namespace Weather.Tests
             public async Task WithMatchingId_ReturnsEntity()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
 
-                var created = await sut.Factory.AddScd(id: 1);
+                Scd created = await sut.Factory.AddScd(1);
 
                 var searchable = new SearchableScd
                 {
-                    Id = created.Id
+                    Id = created.Id,
                 };
 
                 // Act
-                var result = await sut.Service.GetEntity(searchable);
+                Scd? result = await sut.Service.GetEntity(searchable);
 
                 // Assert
                 result.Should().NotBeNull();
@@ -55,15 +57,15 @@ namespace Weather.Tests
             public async Task WithNoMatch_ReturnsNull()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
 
                 var searchable = new SearchableScd
                 {
-                    Id = 999999
+                    Id = 999999,
                 };
 
                 // Act
-                var result = await sut.Service.GetEntity(searchable);
+                Scd? result = await sut.Service.GetEntity(searchable);
 
                 // Assert
                 result.Should().BeNull();
@@ -76,17 +78,17 @@ namespace Weather.Tests
             public async Task WithReaderId_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
 
                 var matchingReaderId = Guid.NewGuid();
 
-                await sut.Factory.AddScd(id: 1, readerId: matchingReaderId);
-                await sut.Factory.AddScd(id: 2, readerId: matchingReaderId);
-                await sut.Factory.AddScd(id: 3, readerId: Guid.NewGuid());
+                await sut.Factory.AddScd(1, matchingReaderId);
+                await sut.Factory.AddScd(2, matchingReaderId);
+                await sut.Factory.AddScd(3, Guid.NewGuid());
 
                 var searchable = new SearchableScd
                 {
-                    ReaderId = matchingReaderId
+                    ReaderId = matchingReaderId,
                 };
 
                 // Act
@@ -101,15 +103,15 @@ namespace Weather.Tests
             public async Task WithCarbonDioxide_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
 
-                await sut.Factory.AddScd(id: 1, carbonDioxide: 500);
-                await sut.Factory.AddScd(id: 2, carbonDioxide: 500);
-                await sut.Factory.AddScd(id: 3, carbonDioxide: 900);
+                await sut.Factory.AddScd(1, carbonDioxide: 500);
+                await sut.Factory.AddScd(2, carbonDioxide: 500);
+                await sut.Factory.AddScd(3, carbonDioxide: 900);
 
                 var searchable = new SearchableScd
                 {
-                    CarbonDioxide = 500
+                    CarbonDioxide = 500,
                 };
 
                 // Act
@@ -127,23 +129,23 @@ namespace Weather.Tests
             public async Task ReturnsFirstMatchingEntity()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
 
                 var readerId = Guid.NewGuid();
 
-                await sut.Factory.AddScd(id: 1, readerId: readerId);
-                await sut.Factory.AddScd(id: 2, readerId: readerId);
+                await sut.Factory.AddScd(1, readerId);
+                await sut.Factory.AddScd(2, readerId);
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd
                     {
-                        ReaderId = readerId
-                    }
+                        ReaderId = readerId,
+                    },
                 };
 
                 // Act
-                var result = await sut.Service.GetEntityComplex(complex);
+                Scd? result = await sut.Service.GetEntityComplex(complex);
 
                 // Assert
                 result.Should().NotBeNull();
@@ -157,18 +159,18 @@ namespace Weather.Tests
             public async Task WithObservedAtAfterThisDateTime_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddDays(-2);
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddDays(-2);
 
-                await sut.Factory.AddScd(id: 1, observedAt: now.AddDays(-4));
-                await sut.Factory.AddScd(id: 2, observedAt: now.AddDays(-1));
-                await sut.Factory.AddScd(id: 3, observedAt: now);
+                await sut.Factory.AddScd(1, observedAt: now.AddDays(-4));
+                await sut.Factory.AddScd(2, observedAt: now.AddDays(-1));
+                await sut.Factory.AddScd(3, observedAt: now);
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd(),
-                    ObservedAtAfterThisDateTime = threshold
+                    ObservedAtAfterThisDateTime = threshold,
                 };
 
                 // Act
@@ -183,18 +185,18 @@ namespace Weather.Tests
             public async Task WithObservedAtBeforeThisDateTime_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddDays(-2);
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddDays(-2);
 
-                await sut.Factory.AddScd(id: 1, observedAt: now.AddDays(-5));
-                await sut.Factory.AddScd(id: 2, observedAt: now.AddDays(-3));
-                await sut.Factory.AddScd(id: 3, observedAt: now.AddDays(-1));
+                await sut.Factory.AddScd(1, observedAt: now.AddDays(-5));
+                await sut.Factory.AddScd(2, observedAt: now.AddDays(-3));
+                await sut.Factory.AddScd(3, observedAt: now.AddDays(-1));
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd(),
-                    ObservedAtBeforeThisDateTime = threshold
+                    ObservedAtBeforeThisDateTime = threshold,
                 };
 
                 // Act
@@ -209,18 +211,18 @@ namespace Weather.Tests
             public async Task WithPulledAtAfterThisDateTime_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddDays(-2);
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddDays(-2);
 
-                await sut.Factory.AddScd(id: 1, pulledAt: now.AddDays(-5));
-                await sut.Factory.AddScd(id: 2, pulledAt: now.AddDays(-1));
-                await sut.Factory.AddScd(id: 3, pulledAt: now);
+                await sut.Factory.AddScd(1, pulledAt: now.AddDays(-5));
+                await sut.Factory.AddScd(2, pulledAt: now.AddDays(-1));
+                await sut.Factory.AddScd(3, pulledAt: now);
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd(),
-                    PulledAtAfterThisDateTime = threshold
+                    PulledAtAfterThisDateTime = threshold,
                 };
 
                 // Act
@@ -235,18 +237,18 @@ namespace Weather.Tests
             public async Task WithPulledAtBeforeThisDateTime_ReturnsOnlyMatchingEntities()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddDays(-2);
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddDays(-2);
 
-                await sut.Factory.AddScd(id: 1, pulledAt: now.AddDays(-5));
-                await sut.Factory.AddScd(id: 2, pulledAt: now.AddDays(-3));
-                await sut.Factory.AddScd(id: 3, pulledAt: now.AddDays(-1));
+                await sut.Factory.AddScd(1, pulledAt: now.AddDays(-5));
+                await sut.Factory.AddScd(2, pulledAt: now.AddDays(-3));
+                await sut.Factory.AddScd(3, pulledAt: now.AddDays(-1));
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd(),
-                    PulledAtBeforeThisDateTime = threshold
+                    PulledAtBeforeThisDateTime = threshold,
                 };
 
                 // Act
@@ -261,17 +263,17 @@ namespace Weather.Tests
             public async Task WithLastXDaysObservedAt_ReturnsOnlyRecentEntities()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                await sut.Factory.AddScd(id: 1, observedAt: now.AddDays(-10));
-                await sut.Factory.AddScd(id: 2, observedAt: now.AddDays(-3));
-                await sut.Factory.AddScd(id: 3, observedAt: now.AddDays(-1));
+                await sut.Factory.AddScd(1, observedAt: now.AddDays(-10));
+                await sut.Factory.AddScd(2, observedAt: now.AddDays(-3));
+                await sut.Factory.AddScd(3, observedAt: now.AddDays(-1));
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd(),
-                    LastXDaysObservedAt = 5
+                    LastXDaysObservedAt = 5,
                 };
 
                 // Act
@@ -286,17 +288,17 @@ namespace Weather.Tests
             public async Task WithLastXDaysPulledAt_ReturnsOnlyRecentEntities()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                await sut.Factory.AddScd(id: 1, pulledAt: now.AddDays(-10));
-                await sut.Factory.AddScd(id: 2, pulledAt: now.AddDays(-3));
-                await sut.Factory.AddScd(id: 3, pulledAt: now.AddDays(-1));
+                await sut.Factory.AddScd(1, pulledAt: now.AddDays(-10));
+                await sut.Factory.AddScd(2, pulledAt: now.AddDays(-3));
+                await sut.Factory.AddScd(3, pulledAt: now.AddDays(-1));
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd(),
-                    LastXDaysPulledAt = 5
+                    LastXDaysPulledAt = 5,
                 };
 
                 // Act
@@ -311,17 +313,17 @@ namespace Weather.Tests
             public async Task WithOrderByObservedAtAscending_ReturnsEntitiesInAscendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var third = await sut.Factory.AddScd(id: 1, observedAt: now.AddHours(3));
-                var first = await sut.Factory.AddScd(id: 2, observedAt: now.AddHours(1));
-                var second = await sut.Factory.AddScd(id: 3, observedAt: now.AddHours(2));
+                Scd third = await sut.Factory.AddScd(1, observedAt: now.AddHours(3));
+                Scd first = await sut.Factory.AddScd(2, observedAt: now.AddHours(1));
+                Scd second = await sut.Factory.AddScd(3, observedAt: now.AddHours(2));
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd(),
-                    OrderByObservedAt = OrderDirection.ASCENDING
+                    OrderByObservedAt = OrderDirection.ASCENDING,
                 };
 
                 // Act
@@ -335,17 +337,17 @@ namespace Weather.Tests
             public async Task WithOrderByObservedAtDescending_ReturnsEntitiesInDescendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var first = await sut.Factory.AddScd(id: 1, observedAt: now.AddHours(1));
-                var second = await sut.Factory.AddScd(id: 2, observedAt: now.AddHours(2));
-                var third = await sut.Factory.AddScd(id: 3, observedAt: now.AddHours(3));
+                Scd first = await sut.Factory.AddScd(1, observedAt: now.AddHours(1));
+                Scd second = await sut.Factory.AddScd(2, observedAt: now.AddHours(2));
+                Scd third = await sut.Factory.AddScd(3, observedAt: now.AddHours(3));
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd(),
-                    OrderByObservedAt = OrderDirection.DESCENDING
+                    OrderByObservedAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -359,17 +361,17 @@ namespace Weather.Tests
             public async Task WithOrderByPulledAtAscending_ReturnsEntitiesInAscendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var third = await sut.Factory.AddScd(id: 1, pulledAt: now.AddHours(3));
-                var first = await sut.Factory.AddScd(id: 2, pulledAt: now.AddHours(1));
-                var second = await sut.Factory.AddScd(id: 3, pulledAt: now.AddHours(2));
+                Scd third = await sut.Factory.AddScd(1, pulledAt: now.AddHours(3));
+                Scd first = await sut.Factory.AddScd(2, pulledAt: now.AddHours(1));
+                Scd second = await sut.Factory.AddScd(3, pulledAt: now.AddHours(2));
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd(),
-                    OrderByPulledAt = OrderDirection.ASCENDING
+                    OrderByPulledAt = OrderDirection.ASCENDING,
                 };
 
                 // Act
@@ -383,17 +385,17 @@ namespace Weather.Tests
             public async Task WithOrderByPulledAtDescending_ReturnsEntitiesInDescendingOrder()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
-                var first = await sut.Factory.AddScd(id: 1, pulledAt: now.AddHours(3));
-                var second = await sut.Factory.AddScd(id: 2, pulledAt: now.AddHours(2));
-                var third = await sut.Factory.AddScd(id: 3, pulledAt: now.AddHours(1));
+                Scd first = await sut.Factory.AddScd(1, pulledAt: now.AddHours(3));
+                Scd second = await sut.Factory.AddScd(2, pulledAt: now.AddHours(2));
+                Scd third = await sut.Factory.AddScd(3, pulledAt: now.AddHours(1));
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd(),
-                    OrderByPulledAt = OrderDirection.DESCENDING
+                    OrderByPulledAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -404,29 +406,30 @@ namespace Weather.Tests
             }
 
             [Test]
-            public async Task WithReaderIdAndPulledAtBeforeAndOrderByPulledAtDescending_ReturnsMatchingEntitiesInExpectedOrder()
+            public async Task
+                WithReaderIdAndPulledAtBeforeAndOrderByPulledAtDescending_ReturnsMatchingEntitiesInExpectedOrder()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
                 var readerId = Guid.NewGuid();
-                var threshold = now.AddHours(-1);
+                DateTime threshold = now.AddHours(-1);
 
-                await sut.Factory.AddScd(id: 1, readerId: Guid.NewGuid(), pulledAt: now.AddHours(-2));
+                await sut.Factory.AddScd(1, Guid.NewGuid(), pulledAt: now.AddHours(-2));
 
-                var second = await sut.Factory.AddScd(id: 2, readerId: readerId, pulledAt: now.AddHours(-3));
-                var first = await sut.Factory.AddScd(id: 3, readerId: readerId, pulledAt: now.AddHours(-2));
+                Scd second = await sut.Factory.AddScd(2, readerId, pulledAt: now.AddHours(-3));
+                Scd first = await sut.Factory.AddScd(3, readerId, pulledAt: now.AddHours(-2));
 
-                await sut.Factory.AddScd(id: 4, readerId: readerId, pulledAt: now);
+                await sut.Factory.AddScd(4, readerId, pulledAt: now);
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd
                     {
-                        ReaderId = readerId
+                        ReaderId = readerId,
                     },
                     PulledAtBeforeThisDateTime = threshold,
-                    OrderByPulledAt = OrderDirection.DESCENDING
+                    OrderByPulledAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -439,28 +442,29 @@ namespace Weather.Tests
             }
 
             [Test]
-            public async Task WithCarbonDioxideAndObservedAtAfterAndOrderByObservedAtAscending_ReturnsMatchingEntitiesInExpectedOrder()
+            public async Task
+                WithCarbonDioxideAndObservedAtAfterAndOrderByObservedAtAscending_ReturnsMatchingEntitiesInExpectedOrder()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
-                var threshold = now.AddHours(-4);
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
+                DateTime threshold = now.AddHours(-4);
 
-                await sut.Factory.AddScd(id: 1, carbonDioxide: 900, observedAt: now.AddHours(-2));
+                await sut.Factory.AddScd(1, carbonDioxide: 900, observedAt: now.AddHours(-2));
 
-                var first = await sut.Factory.AddScd(id: 2, carbonDioxide: 500, observedAt: now.AddHours(-3));
-                var second = await sut.Factory.AddScd(id: 3, carbonDioxide: 500, observedAt: now.AddHours(-1));
+                Scd first = await sut.Factory.AddScd(2, carbonDioxide: 500, observedAt: now.AddHours(-3));
+                Scd second = await sut.Factory.AddScd(3, carbonDioxide: 500, observedAt: now.AddHours(-1));
 
-                await sut.Factory.AddScd(id: 4, carbonDioxide: 500, observedAt: now.AddHours(-5));
+                await sut.Factory.AddScd(4, carbonDioxide: 500, observedAt: now.AddHours(-5));
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd
                     {
-                        CarbonDioxide = 500
+                        CarbonDioxide = 500,
                     },
                     ObservedAtAfterThisDateTime = threshold,
-                    OrderByObservedAt = OrderDirection.ASCENDING
+                    OrderByObservedAt = OrderDirection.ASCENDING,
                 };
 
                 // Act
@@ -473,28 +477,29 @@ namespace Weather.Tests
             }
 
             [Test]
-            public async Task WithReaderIdAndLastXDaysObservedAtAndOrderByObservedAtDescending_ReturnsOnlyRecentMatchingEntitiesInExpectedOrder()
+            public async Task
+                WithReaderIdAndLastXDaysObservedAtAndOrderByObservedAtDescending_ReturnsOnlyRecentMatchingEntitiesInExpectedOrder()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
                 var readerId = Guid.NewGuid();
 
-                await sut.Factory.AddScd(id: 1, readerId: readerId, observedAt: now.AddDays(-10));
+                await sut.Factory.AddScd(1, readerId, observedAt: now.AddDays(-10));
 
-                var second = await sut.Factory.AddScd(id: 2, readerId: readerId, observedAt: now.AddDays(-3));
-                var first = await sut.Factory.AddScd(id: 3, readerId: readerId, observedAt: now.AddDays(-1));
+                Scd second = await sut.Factory.AddScd(2, readerId, observedAt: now.AddDays(-3));
+                Scd first = await sut.Factory.AddScd(3, readerId, observedAt: now.AddDays(-1));
 
-                await sut.Factory.AddScd(id: 4, readerId: Guid.NewGuid(), observedAt: now.AddDays(-2));
+                await sut.Factory.AddScd(4, Guid.NewGuid(), observedAt: now.AddDays(-2));
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd
                     {
-                        ReaderId = readerId
+                        ReaderId = readerId,
                     },
                     LastXDaysObservedAt = 5,
-                    OrderByObservedAt = OrderDirection.DESCENDING
+                    OrderByObservedAt = OrderDirection.DESCENDING,
                 };
 
                 // Act
@@ -510,49 +515,34 @@ namespace Weather.Tests
             public async Task WithReaderIdAndObservedAtRangeAndPulledAtRange_ReturnsOnlyEntitiesMatchingAllCriteria()
             {
                 // Arrange
-                using var sut = this.CreateScdQueryServiceSut();
-                var now = DateTime.UtcNow;
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+                DateTime now = DateTime.UtcNow;
 
                 var readerId = Guid.NewGuid();
-                var observedAfter = now.AddHours(-6);
-                var observedBefore = now.AddHours(-2);
-                var pulledAfter = now.AddHours(-5);
-                var pulledBefore = now.AddHours(-1);
+                DateTime observedAfter = now.AddHours(-6);
+                DateTime observedBefore = now.AddHours(-2);
+                DateTime pulledAfter = now.AddHours(-5);
+                DateTime pulledBefore = now.AddHours(-1);
 
-                var match = await sut.Factory.AddScd(
-                    id: 1,
-                    readerId: readerId,
-                    observedAt: now.AddHours(-4),
+                Scd match = await sut.Factory.AddScd(1, readerId, observedAt: now.AddHours(-4),
                     pulledAt: now.AddHours(-3));
 
-                await sut.Factory.AddScd(
-                    id: 2,
-                    readerId: Guid.NewGuid(),
-                    observedAt: now.AddHours(-4),
-                    pulledAt: now.AddHours(-3));
+                await sut.Factory.AddScd(2, Guid.NewGuid(), observedAt: now.AddHours(-4), pulledAt: now.AddHours(-3));
 
-                await sut.Factory.AddScd(
-                    id: 3,
-                    readerId: readerId,
-                    observedAt: now.AddHours(-7),
-                    pulledAt: now.AddHours(-3));
+                await sut.Factory.AddScd(3, readerId, observedAt: now.AddHours(-7), pulledAt: now.AddHours(-3));
 
-                await sut.Factory.AddScd(
-                    id: 4,
-                    readerId: readerId,
-                    observedAt: now.AddHours(-4),
-                    pulledAt: now);
+                await sut.Factory.AddScd(4, readerId, observedAt: now.AddHours(-4), pulledAt: now);
 
                 var complex = new ComplexSearchableScd
                 {
                     Searchable = new SearchableScd
                     {
-                        ReaderId = readerId
+                        ReaderId = readerId,
                     },
                     ObservedAtAfterThisDateTime = observedAfter,
                     ObservedAtBeforeThisDateTime = observedBefore,
                     PulledAtAfterThisDateTime = pulledAfter,
-                    PulledAtBeforeThisDateTime = pulledBefore
+                    PulledAtBeforeThisDateTime = pulledBefore,
                 };
 
                 // Act

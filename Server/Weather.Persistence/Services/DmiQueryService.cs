@@ -15,13 +15,12 @@ namespace Weather.Persistence.Services
         }
 
         /// <inheritdoc />
-        protected override IQueryable<Dmi> AddComplexQueryArguments(IQueryable<Dmi> query, IComplexSearchable<SearchableDmi> complex)
+        protected override IQueryable<Dmi> AddComplexQueryArguments(
+            IQueryable<Dmi> query, IComplexSearchable<SearchableDmi> complex)
         {
             if (complex is not ComplexSearchableDmi complexSearchableDmi)
-            {
                 throw new ArgumentException(
                     $"Expected {nameof(complex)} to be of type {nameof(ComplexSearchableDmi)}, but it wasn't.");
-            }
 
             query = query.ApplyLastXDaysFilter(complex.LastXDaysObservedAt, x => x.ObservedAt);
             query = query.ApplyLastXDaysFilter(complex.LastXDaysPulledAt, x => x.PulledAt);
@@ -35,7 +34,8 @@ namespace Weather.Persistence.Services
         }
 
         /// <inheritdoc />
-        protected override IEnumerable<Dmi> ApplyComplexNonDatabaseQueryArguments(IEnumerable<Dmi> entities, IComplexSearchable<SearchableDmi> complex)
+        protected override IEnumerable<Dmi> ApplyComplexNonDatabaseQueryArguments(
+            IEnumerable<Dmi> entities, IComplexSearchable<SearchableDmi> complex)
         {
             return entities;
         }
@@ -50,19 +50,13 @@ namespace Weather.Persistence.Services
         protected override IQueryable<Dmi> AddQueryArguments(SearchableDmi searchable, IQueryable<Dmi> query)
         {
             if (searchable.DmiId != Guid.Empty)
-            {
                 query = query.Where(x => x.DmiId == searchable.DmiId);
-            }
 
             if (searchable.ParameterId != default)
-            {
                 query = query.Where(x => x.ParameterId == searchable.ParameterId);
-            }
 
             if (searchable.StationId != 0)
-            {
                 query = query.Where(x => x.StationId == searchable.StationId);
-            }
 
             return query;
         }

@@ -14,7 +14,9 @@ namespace Weather.Server.Controllers
     public class BmeController : EntityController<Bme, SearchableBme, BmeController, ComplexSearchableBme, ReadDtoBme>
     {
         /// <inheritdoc />
-        public BmeController(EntityControllerDependencies<Bme, SearchableBme, ReadDtoBme> dependencies, ILogger<BmeController> logger) : base(dependencies, logger)
+        public BmeController(
+            EntityControllerDependencies<Bme, SearchableBme, ReadDtoBme> dependencies,
+            ILogger<BmeController> logger) : base(dependencies, logger)
         {
         }
     }

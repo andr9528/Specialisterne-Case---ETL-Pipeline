@@ -42,14 +42,14 @@ namespace Weather.Persistence.Core
         private void UpdateDatetime()
         {
             var entries = ChangeTracker.Entries()
-                .Where(e => e is { Entity: IEntity, State: EntityState.Added or EntityState.Modified, });
+                .Where(e => e is {Entity: IEntity, State: EntityState.Added or EntityState.Modified,});
 
             foreach (EntityEntry entityEntry in entries)
             {
-                ((IEntity)entityEntry.Entity).UpdatedDateTime = DateTime.UtcNow;
+                ((IEntity) entityEntry.Entity).UpdatedDateTime = DateTime.UtcNow;
 
                 if (entityEntry.State == EntityState.Added)
-                    ((IEntity)entityEntry.Entity).CreatedDateTime = DateTime.UtcNow;
+                    ((IEntity) entityEntry.Entity).CreatedDateTime = DateTime.UtcNow;
             }
         }
     }

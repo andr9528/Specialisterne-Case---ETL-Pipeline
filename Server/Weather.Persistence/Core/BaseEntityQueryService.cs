@@ -104,7 +104,7 @@ namespace Weather.Persistence.Core
         /// <inheritdoc />
         public async Task DeleteEntityById(int id, bool saveImmediately = true)
         {
-            await DeleteEntity(new TSearchable { Id = id, }, saveImmediately);
+            await DeleteEntity(new TSearchable {Id = id,}, saveImmediately);
         }
 
         private IQueryable<TEntity> BuildQuery(TSearchable searchable)

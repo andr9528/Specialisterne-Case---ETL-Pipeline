@@ -1,6 +1,7 @@
-namespace Weather.Model.Server;
-
-public class SecretsConfig
+namespace Weather.Model.Server
 {
-    public string ConnectionString { get; set; }
+    public class SecretsConfig
+    {
+        public string ConnectionString { get; set; }
+    }
 }

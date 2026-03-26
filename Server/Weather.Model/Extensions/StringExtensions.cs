@@ -9,16 +9,14 @@
 
             var builder = new System.Text.StringBuilder(input.Length + 5);
 
-            for (int i = 0; i < input.Length; i++)
+            for (var i = 0; i < input.Length; i++)
             {
-                var current = input[i];
+                char current = input[i];
 
                 if (char.IsUpper(current))
                 {
                     if (ShouldInsertUnderscore(input, i))
-                    {
                         builder.Append('_');
-                    }
 
                     builder.Append(char.ToLowerInvariant(current));
                 }
@@ -36,16 +34,22 @@
             if (!HasPreviousCharacter(index))
                 return false;
 
-            var previous = input[index - 1];
-            var current = input[index];
-            var next = HasNextCharacter(input, index) ? input[index + 1] : '\0';
+            char previous = input[index - 1];
+            char current = input[index];
+            char next = HasNextCharacter(input, index) ? input[index + 1] : '\0';
 
             return IsStartOfNewWord(previous) || IsEndOfUppercaseSequence(previous, current, next, index, input.Length);
         }
 
-        private static bool HasPreviousCharacter(int index) => index > 0;
+        private static bool HasPreviousCharacter(int index)
+        {
+            return index > 0;
+        }
 
-        private static bool HasNextCharacter(string input, int index) => index < input.Length - 1;
+        private static bool HasNextCharacter(string input, int index)
+        {
+            return index < input.Length - 1;
+        }
 
         private static bool IsStartOfNewWord(char previous)
         {

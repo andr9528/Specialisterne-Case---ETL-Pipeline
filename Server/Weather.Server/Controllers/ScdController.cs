@@ -14,7 +14,8 @@ namespace Weather.Server.Controllers
     {
         /// <inheritdoc />
         public ScdController(
-            EntityControllerDependencies<Scd, SearchableScd, ReadDtoScd> dependencies, ILogger<ScdController> logger) : base(dependencies, logger)
+            EntityControllerDependencies<Scd, SearchableScd, ReadDtoScd> dependencies,
+            ILogger<ScdController> logger) : base(dependencies, logger)
         {
         }
     }

@@ -7,7 +7,7 @@ namespace Weather.Model.ComplexSearchable
     public class ComplexSearchableBme : IComplexSearchable<SearchableBme>
     {
         /// <inheritdoc />
-        public SearchableBme Searchable { get; set; } = new SearchableBme();
+        public SearchableBme Searchable { get; set; } = new();
 
         /// <inheritdoc />
         public OrderDirection? OrderByObservedAt { get; set; }

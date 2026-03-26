@@ -48,30 +48,28 @@ namespace Weather.Server.Controllers
         {
             try
             {
-                var latestBme = await bmeQueryService.GetEntityComplex(new ComplexSearchableBme()
+                Bme? latestBme = await bmeQueryService.GetEntityComplex(new ComplexSearchableBme
                 {
-                    OrderByObservedAt = OrderDirection.DESCENDING
+                    OrderByObservedAt = OrderDirection.DESCENDING,
                 });
 
-                var latestDmi = await dmiQueryService.GetEntityComplex(new ComplexSearchableDmi()
+                Dmi? latestDmi = await dmiQueryService.GetEntityComplex(new ComplexSearchableDmi
                 {
-                    OrderByObservedAt = OrderDirection.DESCENDING
+                    OrderByObservedAt = OrderDirection.DESCENDING,
                 });
 
-                var latestDs = await dsQueryService.GetEntityComplex(new ComplexSearchableDs()
+                Ds? latestDs = await dsQueryService.GetEntityComplex(new ComplexSearchableDs
                 {
-                    OrderByObservedAt = OrderDirection.DESCENDING
+                    OrderByObservedAt = OrderDirection.DESCENDING,
                 });
 
-                var latestScd = await scdQueryService.GetEntityComplex(new ComplexSearchableScd()
+                Scd? latestScd = await scdQueryService.GetEntityComplex(new ComplexSearchableScd
                 {
-                    OrderByObservedAt = OrderDirection.DESCENDING
+                    OrderByObservedAt = OrderDirection.DESCENDING,
                 });
 
                 if (ShouldReturnNoContent(latestBme, latestDmi, latestDs, latestScd))
-                {
                     return NoContent();
-                }
 
                 var result = new OverviewLatestReadingsDto
                 {
@@ -100,9 +98,7 @@ namespace Weather.Server.Controllers
             if (scd is null) missing.Add(nameof(Scd));
 
             if (missing.Count == 0)
-            {
                 return false;
-            }
 
             logger.LogWarning("Missing latest sensor readings for: {MissingSensors}", string.Join(", ", missing));
 

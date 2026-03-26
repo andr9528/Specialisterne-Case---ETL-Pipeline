@@ -4,58 +4,57 @@ using Npgsql;
 using Weather.Persistence;
 using Weather.Services;
 
-namespace Weather.Tests.Core;
-
-public abstract class BaseDatabaseTest : IDisposable
+namespace Weather.Tests.Core
 {
-    private readonly string TestDatabaseName = $"weather_test_{Guid.NewGuid():N}";
-    private IDbContextFactory<WeatherDatabaseContext> contextFactory;
-    private readonly ConfigurationService configurationService;
-    private bool disposed;
-
-    protected BaseDatabaseTest()
+    public abstract class BaseDatabaseTest : IDisposable
     {
-        configurationService = new ConfigurationService();
-        _ = configurationService.BuildConfiguration();
+        private readonly string TestDatabaseName = $"weather_test_{Guid.NewGuid():N}";
+        private IDbContextFactory<WeatherDatabaseContext> contextFactory;
+        private readonly ConfigurationService configurationService;
+        private bool disposed;
 
-        var optionsBuilder = new DbContextOptionsBuilder<WeatherDatabaseContext>();
-
-        var connectionString = ReplaceDatabase(configurationService.GetConnectionString(), TestDatabaseName);
-
-        configurationService.ConfigureDatabaseOptions(optionsBuilder, connectionString);
-
-        contextFactory = new PooledDbContextFactory<WeatherDatabaseContext>(optionsBuilder.Options);
-
-        using var context = CreateContext();
-        context.Database.EnsureCreated();
-    }
-
-    internal WeatherDatabaseContext CreateContext()
-    {
-        return contextFactory.CreateDbContext();
-    }
-
-    public void Dispose()
-    {
-        if (disposed)
+        protected BaseDatabaseTest()
         {
-            return;
+            configurationService = new ConfigurationService();
+            _ = configurationService.BuildConfiguration();
+
+            var optionsBuilder = new DbContextOptionsBuilder<WeatherDatabaseContext>();
+
+            string connectionString = ReplaceDatabase(configurationService.GetConnectionString(), TestDatabaseName);
+
+            configurationService.ConfigureDatabaseOptions(optionsBuilder, connectionString);
+
+            contextFactory = new PooledDbContextFactory<WeatherDatabaseContext>(optionsBuilder.Options);
+
+            using WeatherDatabaseContext context = CreateContext();
+            context.Database.EnsureCreated();
         }
 
-        using var context = CreateContext();
-        context.Database.EnsureDeleted();
-
-        disposed = true;
-        GC.SuppressFinalize(this);
-    }
-
-    private string ReplaceDatabase(string connectionString, string testDatabaseName)
-    {
-        var builder = new NpgsqlConnectionStringBuilder(connectionString)
+        internal WeatherDatabaseContext CreateContext()
         {
-            Database = testDatabaseName
-        };
+            return contextFactory.CreateDbContext();
+        }
 
-        return builder.ConnectionString;
+        public void Dispose()
+        {
+            if (disposed)
+                return;
+
+            using WeatherDatabaseContext context = CreateContext();
+            context.Database.EnsureDeleted();
+
+            disposed = true;
+            GC.SuppressFinalize(this);
+        }
+
+        private string ReplaceDatabase(string connectionString, string testDatabaseName)
+        {
+            var builder = new NpgsqlConnectionStringBuilder(connectionString)
+            {
+                Database = testDatabaseName,
+            };
+
+            return builder.ConnectionString;
+        }
     }
 }

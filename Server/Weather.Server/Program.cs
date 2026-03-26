@@ -1,18 +1,18 @@
-
-namespace Weather.Server;
-
-public class Program
+namespace Weather.Server
 {
-    public static void Main(string[] args)
+    public class Program
     {
-        var startup = new ApiStartup();
+        public static void Main(string[] args)
+        {
+            var startup = new ApiStartup();
 
-        var builder = WebApplication.CreateBuilder(args);
+            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-        startup.SetupServices(builder.Services);
-        var app = builder.Build();
-        startup.SetupApplication(app);
+            startup.SetupServices(builder.Services);
+            WebApplication app = builder.Build();
+            startup.SetupApplication(app);
 
-        app.Run();
+            app.Run();
+        }
     }
 }

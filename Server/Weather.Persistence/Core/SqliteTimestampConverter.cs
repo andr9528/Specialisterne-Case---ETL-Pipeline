@@ -11,13 +11,13 @@ namespace Weather.Persistence.Core
 
         private static byte[] FromDb(string v)
         {
-            return v.Select(c => (byte)c).ToArray();
+            return v.Select(c => (byte) c).ToArray();
             // Encoding.ASCII.GetString(v)
         }
 
         private static string ToDb(byte[] v)
         {
-            return new string(v.Select(b => (char)b).ToArray());
+            return new string(v.Select(b => (char) b).ToArray());
             // Encoding.ASCII.GetBytes(v))
         }
     }

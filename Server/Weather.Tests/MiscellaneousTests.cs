@@ -14,7 +14,7 @@ namespace Weather.Tests
                 string? input = null;
 
                 // Act
-                var result = StringExtensions.ToSnakeCase(input!);
+                string result = StringExtensions.ToSnakeCase(input!);
 
                 // Assert
                 result.Should().BeNull();
@@ -29,7 +29,7 @@ namespace Weather.Tests
                 const string input = "";
 
                 // Act
-                var result = StringExtensions.ToSnakeCase(input);
+                string result = StringExtensions.ToSnakeCase(input);
 
                 // Assert
                 result.Should().BeEmpty();
@@ -44,7 +44,7 @@ namespace Weather.Tests
                 const string input = "   ";
 
                 // Act
-                var result = StringExtensions.ToSnakeCase(input);
+                string result = StringExtensions.ToSnakeCase(input);
 
                 // Assert
                 result.Should().Be(input);
@@ -59,7 +59,7 @@ namespace Weather.Tests
                 const string input = "ObservedAt";
 
                 // Act
-                var result = StringExtensions.ToSnakeCase(input);
+                string result = StringExtensions.ToSnakeCase(input);
 
                 // Assert
                 result.Should().Be("observed_at");
@@ -74,7 +74,7 @@ namespace Weather.Tests
                 const string input = "Location";
 
                 // Act
-                var result = StringExtensions.ToSnakeCase(input);
+                string result = StringExtensions.ToSnakeCase(input);
 
                 // Assert
                 result.Should().Be("location");
@@ -89,7 +89,7 @@ namespace Weather.Tests
                 const string input = "inside";
 
                 // Act
-                var result = StringExtensions.ToSnakeCase(input);
+                string result = StringExtensions.ToSnakeCase(input);
 
                 // Assert
                 result.Should().Be("inside");
@@ -104,7 +104,7 @@ namespace Weather.Tests
                 const string input = "INSIDE";
 
                 // Act
-                var result = StringExtensions.ToSnakeCase(input);
+                string result = StringExtensions.ToSnakeCase(input);
 
                 // Assert
                 result.Should().Be("inside");
@@ -119,7 +119,7 @@ namespace Weather.Tests
                 const string input = "VERY_HIGH";
 
                 // Act
-                var result = StringExtensions.ToSnakeCase(input);
+                string result = StringExtensions.ToSnakeCase(input);
 
                 // Assert
                 result.Should().Be("very_high");
