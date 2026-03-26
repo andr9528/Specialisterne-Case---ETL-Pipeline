@@ -30,7 +30,7 @@ public abstract class BaseDatabaseTest : IDisposable
         context.Database.EnsureCreated();
     }
 
-    protected WeatherDatabaseContext CreateContext()
+    internal WeatherDatabaseContext CreateContext()
     {
         return contextFactory.CreateDbContext();
     }
