@@ -14,5 +14,11 @@ namespace Weather.Model.ComplexSearchable
 
         /// <inheritdoc />
         public OrderDirection? OrderByPulledAt { get; set; }
+
+        /// <inheritdoc />
+        public int? LastXDaysObservedAt { get; set; }
+
+        /// <inheritdoc />
+        public int? LastXDaysPulledAt { get; set; }
     }
 }

@@ -75,5 +75,20 @@ namespace Weather.Persistence.Extensions
                 _ => throw new ArgumentOutOfRangeException(nameof(direction))
             };
         }
+
+        public static IQueryable<TEntity> ApplyLastXDaysFilter<TEntity>(
+            this IQueryable<TEntity> query, int? lastXDays, Expression<Func<TEntity, DateTime>> selector)
+            where TEntity : class, IEntity
+        {
+            if (!lastXDays.HasValue || lastXDays.Value <= 0)
+            {
+                return query;
+            }
+
+            var cutoff = DateTime.UtcNow.AddDays(-lastXDays.Value);
+
+            return query.Where(Expression.Lambda<Func<TEntity, bool>>(
+                Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(cutoff)), selector.Parameters));
+        }
     }
 }

@@ -23,6 +23,9 @@ namespace Weather.Persistence.Services
                     $"Expected {nameof(complex)} to be of type {nameof(ComplexSearchableDs)}, but it wasn't.");
             }
 
+            query = query.ApplyLastXDaysFilter(complex.LastXDaysObservedAt, x => x.ObservedAt);
+            query = query.ApplyLastXDaysFilter(complex.LastXDaysPulledAt, x => x.PulledAt);
+
             return query.ApplyOrderingQueryArguments(complexSearchableDs);
         }
 

@@ -14,4 +14,7 @@ public interface IComplexSearchable<TSearchable> where TSearchable : class, ISea
 
     OrderDirection? OrderByObservedAt { get; set; }
     OrderDirection? OrderByPulledAt { get; set; }
+    int? LastXDaysObservedAt { get; set; }
+    int? LastXDaysPulledAt { get; set; }
+
 }
