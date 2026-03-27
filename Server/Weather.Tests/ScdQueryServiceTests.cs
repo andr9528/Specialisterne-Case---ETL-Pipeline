@@ -624,7 +624,7 @@ namespace Weather.Tests
 
                 // Assert
                 result.Should().HaveCount(2);
-                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id]);
+                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id,]);
                 result.Should().OnlyContain(x => x.CarbonDioxide >= 600 && x.CarbonDioxide <= 750);
             }
 
@@ -637,13 +637,13 @@ namespace Weather.Tests
 
                 var readerId = Guid.NewGuid();
 
-                Scd match = await sut.Factory.AddScd(1, readerId, carbonDioxide: 700, temperature: 23.0f);
+                Scd match = await sut.Factory.AddScd(1, readerId, 700, temperature: 23.0f);
 
-                await sut.Factory.AddScd(2, Guid.NewGuid(), carbonDioxide: 700, temperature: 23.0f);
+                await sut.Factory.AddScd(2, Guid.NewGuid(), 700, temperature: 23.0f);
 
-                await sut.Factory.AddScd(3, readerId, carbonDioxide: 950, temperature: 23.0f);
+                await sut.Factory.AddScd(3, readerId, 950, temperature: 23.0f);
 
-                await sut.Factory.AddScd(4, readerId, carbonDioxide: 700, temperature: 27.0f);
+                await sut.Factory.AddScd(4, readerId, 700, temperature: 27.0f);
 
                 var complex = new ComplexSearchableScd
                 {

@@ -23,7 +23,7 @@ namespace Weather.Server.Startup
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = apiTitle, Version = "v1",});
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
                 c.IncludeXmlComments(xmlPath);
             });

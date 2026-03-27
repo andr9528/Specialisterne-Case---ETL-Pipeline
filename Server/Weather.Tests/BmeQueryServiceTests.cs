@@ -555,7 +555,7 @@ namespace Weather.Tests
 
                 // Assert
                 result.Should().HaveCount(2);
-                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id]);
+                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id,]);
                 result.Should().OnlyContain(x => x.Pressure >= 1000.0f && x.Pressure <= 1015.0f);
             }
 

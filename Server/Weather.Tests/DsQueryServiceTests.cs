@@ -624,7 +624,7 @@ namespace Weather.Tests
 
                 // Assert
                 result.Should().HaveCount(2);
-                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id]);
+                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id,]);
                 result.Should().OnlyContain(x => x.Temperature >= 20.0f && x.Temperature <= 23.0f);
             }
 
@@ -636,13 +636,13 @@ namespace Weather.Tests
 
                 var readerId = Guid.NewGuid();
 
-                Ds match = await sut.Factory.AddDs(1, readerId, location: Location.INSIDE, temperature: 22.0f);
+                Ds match = await sut.Factory.AddDs(1, readerId, Location.INSIDE, temperature: 22.0f);
 
-                await sut.Factory.AddDs(2, Guid.NewGuid(), location: Location.INSIDE, temperature: 22.0f);
+                await sut.Factory.AddDs(2, Guid.NewGuid(), Location.INSIDE, temperature: 22.0f);
 
-                await sut.Factory.AddDs(3, readerId, location: Location.OUTSIDE, temperature: 22.0f);
+                await sut.Factory.AddDs(3, readerId, Location.OUTSIDE, temperature: 22.0f);
 
-                await sut.Factory.AddDs(4, readerId, location: Location.INSIDE, temperature: 27.0f);
+                await sut.Factory.AddDs(4, readerId, Location.INSIDE, temperature: 27.0f);
 
                 var complex = new ComplexSearchableDs
                 {
@@ -662,8 +662,6 @@ namespace Weather.Tests
                 result.Should().HaveCount(1);
                 result.Single().Id.Should().Be(match.Id);
             }
-
-
         }
     }
 }

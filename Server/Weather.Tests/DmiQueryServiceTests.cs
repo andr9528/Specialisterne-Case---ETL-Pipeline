@@ -538,7 +538,7 @@ namespace Weather.Tests
 
                 // Assert
                 result.Should().HaveCount(2);
-                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id]);
+                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id,]);
                 result.Should().OnlyContain(x => x.Value >= 5.0f && x.Value <= 8.0f);
             }
 
