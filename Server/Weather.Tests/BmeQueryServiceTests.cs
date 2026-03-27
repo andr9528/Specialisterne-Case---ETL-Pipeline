@@ -483,6 +483,157 @@ namespace Weather.Tests
                 result.Should().HaveCount(1);
                 result.Single().Id.Should().Be(match.Id);
             }
+
+            [Test]
+            public async Task WithAboveTemperature_ReturnsOnlyMatchingEntities()
+            {
+                // Arrange
+                using BmeQueryServiceSut sut = this.CreateBmeQueryServiceSut();
+
+                await sut.Factory.AddBme(temperature: 19.5f);
+                await sut.Factory.AddBme(temperature: 22.0f);
+                await sut.Factory.AddBme(temperature: 25.5f);
+
+                var complex = new ComplexSearchableBme
+                {
+                    Searchable = new SearchableBme(),
+                    AboveTemperature = 22.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x => x.Temperature >= 22.0f);
+            }
+
+            [Test]
+            public async Task WithBelowHumidity_ReturnsOnlyMatchingEntities()
+            {
+                // Arrange
+                using BmeQueryServiceSut sut = this.CreateBmeQueryServiceSut();
+
+                await sut.Factory.AddBme(humidity: 35.0f);
+                await sut.Factory.AddBme(humidity: 50.0f);
+                await sut.Factory.AddBme(humidity: 65.0f);
+
+                var complex = new ComplexSearchableBme
+                {
+                    Searchable = new SearchableBme(),
+                    BelowHumidity = 50.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x => x.Humidity <= 50.0f);
+            }
+
+            [Test]
+            public async Task WithAbovePressureAndBelowPressure_ReturnsOnlyEntitiesWithinPressureRange()
+            {
+                // Arrange
+                using BmeQueryServiceSut sut = this.CreateBmeQueryServiceSut();
+
+                await sut.Factory.AddBme(pressure: 995.0f);
+                Bme first = await sut.Factory.AddBme(pressure: 1005.0f);
+                Bme second = await sut.Factory.AddBme(pressure: 1010.0f);
+                await sut.Factory.AddBme(pressure: 1025.0f);
+
+                var complex = new ComplexSearchableBme
+                {
+                    Searchable = new SearchableBme(),
+                    AbovePressure = 1000.0f,
+                    BelowPressure = 1015.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id]);
+                result.Should().OnlyContain(x => x.Pressure >= 1000.0f && x.Pressure <= 1015.0f);
+            }
+
+            [Test]
+            public async Task WithLocationAndTemperatureRangeAndHumidityRange_ReturnsOnlyEntitiesMatchingAllCriteria()
+            {
+                // Arrange
+                using BmeQueryServiceSut sut = this.CreateBmeQueryServiceSut();
+
+                Bme match = await sut.Factory.AddBme(location: Location.INSIDE, temperature: 22.5f, humidity: 45.0f);
+
+                await sut.Factory.AddBme(location: Location.OUTSIDE, temperature: 22.5f, humidity: 45.0f);
+
+                await sut.Factory.AddBme(location: Location.INSIDE, temperature: 18.0f, humidity: 45.0f);
+
+                await sut.Factory.AddBme(location: Location.INSIDE, temperature: 22.5f, humidity: 60.0f);
+
+                var complex = new ComplexSearchableBme
+                {
+                    Searchable = new SearchableBme
+                    {
+                        Location = Location.INSIDE,
+                    },
+                    AboveTemperature = 20.0f,
+                    BelowTemperature = 25.0f,
+                    AboveHumidity = 40.0f,
+                    BelowHumidity = 50.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(1);
+                result.Single().Id.Should().Be(match.Id);
+            }
+
+            [Test]
+            public async Task
+                WithReaderIdAndTemperatureRangeAndOrderByTemperatureRelevantObservedAtOrdering_ReturnsMatchingEntities()
+            {
+                // Arrange
+                using BmeQueryServiceSut sut = this.CreateBmeQueryServiceSut();
+
+                DateTime now = DateTime.UtcNow;
+                var readerId = Guid.NewGuid();
+
+                await sut.Factory.AddBme(readerId: Guid.NewGuid(), temperature: 22.0f, observedAt: now.AddHours(-2));
+                await sut.Factory.AddBme(readerId: readerId, temperature: 18.0f, observedAt: now.AddHours(-3));
+
+                Bme first = await sut.Factory.AddBme(readerId: readerId, temperature: 21.0f,
+                    observedAt: now.AddHours(-2));
+                Bme second = await sut.Factory.AddBme(readerId: readerId, temperature: 24.0f,
+                    observedAt: now.AddHours(-1));
+
+                await sut.Factory.AddBme(readerId: readerId, temperature: 27.0f, observedAt: now);
+
+                var complex = new ComplexSearchableBme
+                {
+                    Searchable = new SearchableBme
+                    {
+                        ReaderId = readerId,
+                    },
+                    AboveTemperature = 20.0f,
+                    BelowTemperature = 25.0f,
+                    OrderByObservedAt = OrderDirection.ASCENDING,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x =>
+                    x.ReaderId == readerId && x.Temperature >= 20.0f && x.Temperature <= 25.0f);
+
+                result.Select(x => x.Id).Should().ContainInOrder(first.Id, second.Id);
+            }
         }
     }
 }

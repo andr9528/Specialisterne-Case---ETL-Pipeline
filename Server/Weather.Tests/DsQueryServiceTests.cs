@@ -552,6 +552,118 @@ namespace Weather.Tests
                 result.Should().HaveCount(1);
                 result.Single().Id.Should().Be(match.Id);
             }
+
+            [Test]
+            public async Task WithAboveTemperature_ReturnsOnlyMatchingEntities()
+            {
+                // Arrange
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+
+                await sut.Factory.AddDs(1, temperature: 18.0f);
+                await sut.Factory.AddDs(2, temperature: 21.0f);
+                await sut.Factory.AddDs(3, temperature: 24.0f);
+
+                var complex = new ComplexSearchableDs
+                {
+                    Searchable = new SearchableDs(),
+                    AboveTemperature = 21.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x => x.Temperature >= 21.0f);
+            }
+
+            [Test]
+            public async Task WithBelowTemperature_ReturnsOnlyMatchingEntities()
+            {
+                // Arrange
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+
+                await sut.Factory.AddDs(1, temperature: 18.0f);
+                await sut.Factory.AddDs(2, temperature: 21.0f);
+                await sut.Factory.AddDs(3, temperature: 24.0f);
+
+                var complex = new ComplexSearchableDs
+                {
+                    Searchable = new SearchableDs(),
+                    BelowTemperature = 21.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x => x.Temperature <= 21.0f);
+            }
+
+            [Test]
+            public async Task WithAboveTemperatureAndBelowTemperature_ReturnsOnlyEntitiesWithinTemperatureRange()
+            {
+                // Arrange
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+
+                await sut.Factory.AddDs(1, temperature: 16.0f);
+                Ds first = await sut.Factory.AddDs(2, temperature: 20.0f);
+                Ds second = await sut.Factory.AddDs(3, temperature: 23.0f);
+                await sut.Factory.AddDs(4, temperature: 27.0f);
+
+                var complex = new ComplexSearchableDs
+                {
+                    Searchable = new SearchableDs(),
+                    AboveTemperature = 20.0f,
+                    BelowTemperature = 23.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id]);
+                result.Should().OnlyContain(x => x.Temperature >= 20.0f && x.Temperature <= 23.0f);
+            }
+
+            [Test]
+            public async Task WithLocationAndReaderIdAndTemperatureRange_ReturnsOnlyEntitiesMatchingAllCriteria()
+            {
+                // Arrange
+                using DsQueryServiceSut sut = this.CreateDsQueryServiceSut();
+
+                var readerId = Guid.NewGuid();
+
+                Ds match = await sut.Factory.AddDs(1, readerId, location: Location.INSIDE, temperature: 22.0f);
+
+                await sut.Factory.AddDs(2, Guid.NewGuid(), location: Location.INSIDE, temperature: 22.0f);
+
+                await sut.Factory.AddDs(3, readerId, location: Location.OUTSIDE, temperature: 22.0f);
+
+                await sut.Factory.AddDs(4, readerId, location: Location.INSIDE, temperature: 27.0f);
+
+                var complex = new ComplexSearchableDs
+                {
+                    Searchable = new SearchableDs
+                    {
+                        ReaderId = readerId,
+                        Location = Location.INSIDE,
+                    },
+                    AboveTemperature = 20.0f,
+                    BelowTemperature = 25.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(1);
+                result.Single().Id.Should().Be(match.Id);
+            }
+
+
         }
     }
 }

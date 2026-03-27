@@ -466,6 +466,154 @@ namespace Weather.Tests
                 result.Should().HaveCount(1);
                 result.Single().Id.Should().Be(match.Id);
             }
+
+            [Test]
+            public async Task WithAboveValue_ReturnsOnlyMatchingEntities()
+            {
+                // Arrange
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+
+                await sut.Factory.AddDmi(1, value: 5.0f);
+                await sut.Factory.AddDmi(2, value: 10.0f);
+                await sut.Factory.AddDmi(3, value: 15.0f);
+
+                var complex = new ComplexSearchableDmi
+                {
+                    Searchable = new SearchableDmi(),
+                    AboveValue = 10.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x => x.Value >= 10.0f);
+            }
+
+            [Test]
+            public async Task WithBelowValue_ReturnsOnlyMatchingEntities()
+            {
+                // Arrange
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+
+                await sut.Factory.AddDmi(1, value: 5.0f);
+                await sut.Factory.AddDmi(2, value: 10.0f);
+                await sut.Factory.AddDmi(3, value: 15.0f);
+
+                var complex = new ComplexSearchableDmi
+                {
+                    Searchable = new SearchableDmi(),
+                    BelowValue = 10.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x => x.Value <= 10.0f);
+            }
+
+            [Test]
+            public async Task WithAboveValueAndBelowValue_ReturnsOnlyEntitiesWithinValueRange()
+            {
+                // Arrange
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+
+                await sut.Factory.AddDmi(1, value: 2.0f);
+                Dmi first = await sut.Factory.AddDmi(2, value: 5.0f);
+                Dmi second = await sut.Factory.AddDmi(3, value: 8.0f);
+                await sut.Factory.AddDmi(4, value: 12.0f);
+
+                var complex = new ComplexSearchableDmi
+                {
+                    Searchable = new SearchableDmi(),
+                    AboveValue = 5.0f,
+                    BelowValue = 8.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id]);
+                result.Should().OnlyContain(x => x.Value >= 5.0f && x.Value <= 8.0f);
+            }
+
+            [Test]
+            public async Task WithStationIdAndParameterIdAndValueRange_ReturnsOnlyEntitiesMatchingAllCriteria()
+            {
+                // Arrange
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+
+                Dmi match = await sut.Factory.AddDmi(1, stationId: 123, parameterId: DmiParameter.TEMP_DRY,
+                    value: 7.5f);
+
+                await sut.Factory.AddDmi(2, stationId: 999, parameterId: DmiParameter.TEMP_DRY, value: 7.5f);
+
+                await sut.Factory.AddDmi(3, stationId: 123, parameterId: DmiParameter.HUMIDITY, value: 7.5f);
+
+                await sut.Factory.AddDmi(4, stationId: 123, parameterId: DmiParameter.TEMP_DRY, value: 12.0f);
+
+                var complex = new ComplexSearchableDmi
+                {
+                    Searchable = new SearchableDmi
+                    {
+                        StationId = 123,
+                        ParameterId = DmiParameter.TEMP_DRY,
+                    },
+                    AboveValue = 5.0f,
+                    BelowValue = 10.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(1);
+                result.Single().Id.Should().Be(match.Id);
+            }
+
+            [Test]
+            public async Task
+                WithDmiIdAndValueRangeAndOrderByObservedAtAscending_ReturnsMatchingEntitiesInExpectedOrder()
+            {
+                // Arrange
+                using DmiQueryServiceSut sut = this.CreateDmiQueryServiceSut();
+
+                DateTime now = DateTime.UtcNow;
+                var matchingDmiId = Guid.NewGuid();
+
+                await sut.Factory.AddDmi(1, Guid.NewGuid(), value: 7.0f, observedAt: now.AddHours(-2));
+                await sut.Factory.AddDmi(2, matchingDmiId, value: 4.0f, observedAt: now.AddHours(-3));
+
+                Dmi first = await sut.Factory.AddDmi(3, matchingDmiId, value: 6.0f, observedAt: now.AddHours(-2));
+                Dmi second = await sut.Factory.AddDmi(4, matchingDmiId, value: 9.0f, observedAt: now.AddHours(-1));
+
+                await sut.Factory.AddDmi(5, matchingDmiId, value: 11.0f, observedAt: now);
+
+                var complex = new ComplexSearchableDmi
+                {
+                    Searchable = new SearchableDmi
+                    {
+                        DmiId = matchingDmiId,
+                    },
+                    AboveValue = 5.0f,
+                    BelowValue = 10.0f,
+                    OrderByObservedAt = OrderDirection.ASCENDING,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x => x.DmiId == matchingDmiId && x.Value >= 5.0f && x.Value <= 10.0f);
+
+                result.Select(x => x.Id).Should().ContainInOrder(first.Id, second.Id);
+            }
         }
     }
 }

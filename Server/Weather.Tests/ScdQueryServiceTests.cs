@@ -552,6 +552,166 @@ namespace Weather.Tests
                 result.Should().HaveCount(1);
                 result.Single().Id.Should().Be(match.Id);
             }
+
+            [Test]
+            public async Task WithAboveHumidity_ReturnsOnlyMatchingEntities()
+            {
+                // Arrange
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+
+                await sut.Factory.AddScd(1, humidity: 35.0f);
+                await sut.Factory.AddScd(2, humidity: 45.0f);
+                await sut.Factory.AddScd(3, humidity: 55.0f);
+
+                var complex = new ComplexSearchableScd
+                {
+                    Searchable = new SearchableScd(),
+                    AboveHumidity = 45.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x => x.Humidity >= 45.0f);
+            }
+
+            [Test]
+            public async Task WithBelowCarbonDioxide_ReturnsOnlyMatchingEntities()
+            {
+                // Arrange
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+
+                await sut.Factory.AddScd(1, carbonDioxide: 500);
+                await sut.Factory.AddScd(2, carbonDioxide: 700);
+                await sut.Factory.AddScd(3, carbonDioxide: 900);
+
+                var complex = new ComplexSearchableScd
+                {
+                    Searchable = new SearchableScd(),
+                    BelowCarbonDioxide = 700,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x => x.CarbonDioxide <= 700);
+            }
+
+            [Test]
+            public async Task WithAboveCarbonDioxideAndBelowCarbonDioxide_ReturnsOnlyEntitiesWithinCarbonDioxideRange()
+            {
+                // Arrange
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+
+                await sut.Factory.AddScd(1, carbonDioxide: 450);
+                Scd first = await sut.Factory.AddScd(2, carbonDioxide: 600);
+                Scd second = await sut.Factory.AddScd(3, carbonDioxide: 750);
+                await sut.Factory.AddScd(4, carbonDioxide: 950);
+
+                var complex = new ComplexSearchableScd
+                {
+                    Searchable = new SearchableScd(),
+                    AboveCarbonDioxide = 600,
+                    BelowCarbonDioxide = 750,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Select(x => x.Id).Should().BeEquivalentTo([first.Id, second.Id]);
+                result.Should().OnlyContain(x => x.CarbonDioxide >= 600 && x.CarbonDioxide <= 750);
+            }
+
+            [Test]
+            public async Task
+                WithReaderIdAndCarbonDioxideRangeAndTemperatureRange_ReturnsOnlyEntitiesMatchingAllCriteria()
+            {
+                // Arrange
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+
+                var readerId = Guid.NewGuid();
+
+                Scd match = await sut.Factory.AddScd(1, readerId, carbonDioxide: 700, temperature: 23.0f);
+
+                await sut.Factory.AddScd(2, Guid.NewGuid(), carbonDioxide: 700, temperature: 23.0f);
+
+                await sut.Factory.AddScd(3, readerId, carbonDioxide: 950, temperature: 23.0f);
+
+                await sut.Factory.AddScd(4, readerId, carbonDioxide: 700, temperature: 27.0f);
+
+                var complex = new ComplexSearchableScd
+                {
+                    Searchable = new SearchableScd
+                    {
+                        ReaderId = readerId,
+                    },
+                    AboveCarbonDioxide = 600,
+                    BelowCarbonDioxide = 800,
+                    AboveTemperature = 20.0f,
+                    BelowTemperature = 25.0f,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(1);
+                result.Single().Id.Should().Be(match.Id);
+            }
+
+            [Test]
+            public async Task
+                WithReaderIdAndHumidityRangeAndCarbonDioxideRangeAndOrderByObservedAtAscending_ReturnsMatchingEntitiesInExpectedOrder()
+            {
+                // Arrange
+                using ScdQueryServiceSut sut = this.CreateScdQueryServiceSut();
+
+                DateTime now = DateTime.UtcNow;
+                var readerId = Guid.NewGuid();
+
+                await sut.Factory.AddScd(1, Guid.NewGuid(), humidity: 45.0f, carbonDioxide: 700,
+                    observedAt: now.AddHours(-2));
+                await sut.Factory.AddScd(2, readerId, humidity: 35.0f, carbonDioxide: 700,
+                    observedAt: now.AddHours(-3));
+
+                Scd first = await sut.Factory.AddScd(3, readerId, humidity: 42.0f, carbonDioxide: 650,
+                    observedAt: now.AddHours(-2));
+
+                Scd second = await sut.Factory.AddScd(4, readerId, humidity: 48.0f, carbonDioxide: 780,
+                    observedAt: now.AddHours(-1));
+
+                await sut.Factory.AddScd(5, readerId, humidity: 52.0f, carbonDioxide: 700, observedAt: now);
+
+                var complex = new ComplexSearchableScd
+                {
+                    Searchable = new SearchableScd
+                    {
+                        ReaderId = readerId,
+                    },
+                    AboveHumidity = 40.0f,
+                    BelowHumidity = 50.0f,
+                    AboveCarbonDioxide = 600,
+                    BelowCarbonDioxide = 800,
+                    OrderByObservedAt = OrderDirection.ASCENDING,
+                };
+
+                // Act
+                var result = (await sut.Service.GetEntitiesComplex(complex)).ToList();
+
+                // Assert
+                result.Should().HaveCount(2);
+                result.Should().OnlyContain(x =>
+                    x.ReaderId == readerId && x.Humidity >= 40.0f && x.Humidity <= 50.0f && x.CarbonDioxide >= 600 &&
+                    x.CarbonDioxide <= 800);
+
+                result.Select(x => x.Id).Should().ContainInOrder(first.Id, second.Id);
+            }
         }
     }
 }
