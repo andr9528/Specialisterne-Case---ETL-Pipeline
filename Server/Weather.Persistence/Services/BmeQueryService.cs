@@ -30,6 +30,14 @@ namespace Weather.Persistence.Services
             query = query.ApplyAfterDateTime(complex.PulledAtAfterThisDateTime, x => x.PulledAt);
             query = query.ApplyBeforeDateTime(complex.PulledAtBeforeThisDateTime, x => x.PulledAt);
 
+            query = query.ApplyAboveValue(complexSearchableBme.AboveHumidity, x => x.Humidity);
+            query = query.ApplyAboveValue(complexSearchableBme.AbovePressure, x => x.Pressure);
+            query = query.ApplyAboveValue(complexSearchableBme.AboveTemperature, x => x.Temperature);
+
+            query = query.ApplyBelowValue(complexSearchableBme.BelowHumidity, x => x.Humidity);
+            query = query.ApplyBelowValue(complexSearchableBme.BelowPressure, x => x.Pressure);
+            query = query.ApplyBelowValue(complexSearchableBme.BelowTemperature, x => x.Temperature);
+
             return query.ApplyOrderingQueryArguments(complexSearchableBme);
         }
 

@@ -32,5 +32,8 @@ namespace Weather.Model.ComplexSearchable
 
         /// <inheritdoc />
         public DateTime? PulledAtBeforeThisDateTime { get; set; }
+
+        public float? AboveTemperature { get; set; }
+        public float? BelowTemperature { get; set; }
     }
 }

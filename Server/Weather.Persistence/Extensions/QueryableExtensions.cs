@@ -95,5 +95,33 @@ namespace Weather.Persistence.Extensions
 
             return query.Where(lambda);
         }
+
+        public static IQueryable<TEntity> ApplyAboveValue<TEntity, TValue>(
+            this IQueryable<TEntity> query, TValue? above, Expression<Func<TEntity, TValue>> selector)
+            where TEntity : class, IEntity where TValue : struct, IComparable<TValue>
+        {
+            if (!above.HasValue)
+                return query;
+
+            BinaryExpression body = Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(above.Value));
+
+            var lambda = Expression.Lambda<Func<TEntity, bool>>(body, selector.Parameters);
+
+            return query.Where(lambda);
+        }
+
+        public static IQueryable<TEntity> ApplyBelowValue<TEntity, TValue>(
+            this IQueryable<TEntity> query, TValue? below, Expression<Func<TEntity, TValue>> selector)
+            where TEntity : class, IEntity where TValue : struct, IComparable<TValue>
+        {
+            if (!below.HasValue)
+                return query;
+
+            BinaryExpression body = Expression.LessThanOrEqual(selector.Body, Expression.Constant(below.Value));
+
+            var lambda = Expression.Lambda<Func<TEntity, bool>>(body, selector.Parameters);
+
+            return query.Where(lambda);
+        }
     }
 }
