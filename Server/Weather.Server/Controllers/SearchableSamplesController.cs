@@ -254,6 +254,67 @@ namespace Weather.Server.Controllers
                         LastXDaysPulledAt = 2,
                         OrderByPulledAt = OrderDirection.ASCENDING,
                     }),
+                CreateSample("Returns BME280 entries with Temperature above 20°C.",
+                    complexSearchableBme: new ComplexSearchableBme
+                    {
+                        AboveTemperature = 20.0f,
+                    }),
+
+                CreateSample("Returns BME280 entries with Humidity below 50%.",
+                    complexSearchableBme: new ComplexSearchableBme
+                    {
+                        BelowHumidity = 50.0f,
+                    }),
+
+                CreateSample("Returns BME280 entries with Pressure between 1000 and 1020 hPa.",
+                    complexSearchableBme: new ComplexSearchableBme
+                    {
+                        AbovePressure = 1000.0f,
+                        BelowPressure = 1020.0f,
+                    }),
+
+                CreateSample("Returns BME280 entries from the OUTSIDE location with Temperature above 15°C.",
+                    complexSearchableBme: new ComplexSearchableBme
+                    {
+                        Searchable = new SearchableBme
+                        {
+                            Location = Location.OUTSIDE,
+                        },
+                        AboveTemperature = 15.0f,
+                    }),
+
+                CreateSample("Returns BME280 entries from a specific reader with Temperature between 18°C and 25°C.",
+                    complexSearchableBme: new ComplexSearchableBme
+                    {
+                        Searchable = new SearchableBme
+                        {
+                            ReaderId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+                        },
+                        AboveTemperature = 18.0f,
+                        BelowTemperature = 25.0f,
+                    }),
+
+                CreateSample(
+                    "Returns BME280 entries with Humidity between 30% and 60%, ordered by ObservedAt descending.",
+                    complexSearchableBme: new ComplexSearchableBme
+                    {
+                        AboveHumidity = 30.0f,
+                        BelowHumidity = 60.0f,
+                        OrderByObservedAt = OrderDirection.DESCENDING,
+                    }),
+
+                CreateSample(
+                    "Returns BME280 entries from the INSIDE location with Temperature between 20°C and 24°C observed within the last 3 days.",
+                    complexSearchableBme: new ComplexSearchableBme
+                    {
+                        Searchable = new SearchableBme
+                        {
+                            Location = Location.INSIDE,
+                        },
+                        AboveTemperature = 20.0f,
+                        BelowTemperature = 24.0f,
+                        LastXDaysObservedAt = 3,
+                    }),
             ];
         }
 
@@ -443,6 +504,58 @@ namespace Weather.Server.Controllers
                         LastXDaysPulledAt = 2,
                         OrderByPulledAt = OrderDirection.ASCENDING,
                     }),
+                CreateSample("Returns DMI entries with Value above 5.", complexSearchableDmi: new ComplexSearchableDmi
+                {
+                    AboveValue = 5.0f,
+                }),
+
+                CreateSample("Returns DMI entries with Value below 10.", complexSearchableDmi: new ComplexSearchableDmi
+                {
+                    BelowValue = 10.0f,
+                }),
+
+                CreateSample("Returns DMI entries with Value between 2 and 8.",
+                    complexSearchableDmi: new ComplexSearchableDmi
+                    {
+                        AboveValue = 2.0f,
+                        BelowValue = 8.0f,
+                    }),
+
+                CreateSample("Returns DMI entries for StationId = 12345 with Value above 5.",
+                    complexSearchableDmi: new ComplexSearchableDmi
+                    {
+                        Searchable = new SearchableDmi
+                        {
+                            StationId = 12345,
+                        },
+                        AboveValue = 5.0f,
+                    }),
+
+                CreateSample(
+                    "Returns DMI entries for ParameterId = TEMP_DRY with Value between 5 and 15 ordered by ObservedAt ascending.",
+                    complexSearchableDmi: new ComplexSearchableDmi
+                    {
+                        Searchable = new SearchableDmi
+                        {
+                            ParameterId = DmiParameter.TEMP_DRY,
+                        },
+                        AboveValue = 5.0f,
+                        BelowValue = 15.0f,
+                        OrderByObservedAt = OrderDirection.ASCENDING,
+                    }),
+
+                CreateSample(
+                    "Returns DMI entries for a specific DmiId with Value between 0 and 20 observed within the last 2 days.",
+                    complexSearchableDmi: new ComplexSearchableDmi
+                    {
+                        Searchable = new SearchableDmi
+                        {
+                            DmiId = Guid.Parse("ffffffff-eeee-dddd-cccc-bbbbbbbbbbbb"),
+                        },
+                        AboveValue = 0.0f,
+                        BelowValue = 20.0f,
+                        LastXDaysObservedAt = 2,
+                    }),
             ];
         }
 
@@ -609,6 +722,60 @@ namespace Weather.Server.Controllers
                         },
                         LastXDaysPulledAt = 2,
                         OrderByPulledAt = OrderDirection.ASCENDING,
+                    }),
+                CreateSample("Returns DS18B20 entries with Temperature above 20°C.",
+                    complexSearchableDs: new ComplexSearchableDs
+                    {
+                        AboveTemperature = 20.0f,
+                    }),
+
+                CreateSample("Returns DS18B20 entries with Temperature below 10°C.",
+                    complexSearchableDs: new ComplexSearchableDs
+                    {
+                        BelowTemperature = 10.0f,
+                    }),
+
+                CreateSample("Returns DS18B20 entries with Temperature between 18°C and 25°C.",
+                    complexSearchableDs: new ComplexSearchableDs
+                    {
+                        AboveTemperature = 18.0f,
+                        BelowTemperature = 25.0f,
+                    }),
+
+                CreateSample("Returns DS18B20 entries from the OUTSIDE location with Temperature above 5°C.",
+                    complexSearchableDs: new ComplexSearchableDs
+                    {
+                        Searchable = new SearchableDs
+                        {
+                            Location = Location.OUTSIDE,
+                        },
+                        AboveTemperature = 5.0f,
+                    }),
+
+                CreateSample(
+                    "Returns DS18B20 entries from a specific reader with Temperature between 15°C and 22°C ordered by ObservedAt descending.",
+                    complexSearchableDs: new ComplexSearchableDs
+                    {
+                        Searchable = new SearchableDs
+                        {
+                            ReaderId = Guid.Parse("abababab-1111-2222-3333-cccccccccccc"),
+                        },
+                        AboveTemperature = 15.0f,
+                        BelowTemperature = 22.0f,
+                        OrderByObservedAt = OrderDirection.DESCENDING,
+                    }),
+
+                CreateSample(
+                    "Returns DS18B20 entries from the INSIDE location with Temperature between 20°C and 24°C pulled within the last 1 day.",
+                    complexSearchableDs: new ComplexSearchableDs
+                    {
+                        Searchable = new SearchableDs
+                        {
+                            Location = Location.INSIDE,
+                        },
+                        AboveTemperature = 20.0f,
+                        BelowTemperature = 24.0f,
+                        LastXDaysPulledAt = 1,
                     }),
             ];
         }
@@ -786,6 +953,67 @@ namespace Weather.Server.Controllers
                         LastXDaysPulledAt = 2,
                         OrderByPulledAt = OrderDirection.ASCENDING,
                     }),
+                CreateSample("Returns SCD41 entries with CarbonDioxide above 600 ppm.",
+                    complexSearchableScd: new ComplexSearchableScd
+                    {
+                        AboveCarbonDioxide = 600,
+                    }),
+
+                CreateSample("Returns SCD41 entries with CarbonDioxide below 800 ppm.",
+                    complexSearchableScd: new ComplexSearchableScd
+                    {
+                        BelowCarbonDioxide = 800,
+                    }),
+
+                CreateSample("Returns SCD41 entries with CarbonDioxide between 600 and 900 ppm.",
+                    complexSearchableScd: new ComplexSearchableScd
+                    {
+                        AboveCarbonDioxide = 600,
+                        BelowCarbonDioxide = 900,
+                    }),
+
+                CreateSample("Returns SCD41 entries with Temperature above 20°C and Humidity below 60%.",
+                    complexSearchableScd: new ComplexSearchableScd
+                    {
+                        AboveTemperature = 20.0f,
+                        BelowHumidity = 60.0f,
+                    }),
+
+                CreateSample("Returns SCD41 entries for a specific reader with CarbonDioxide between 500 and 800 ppm.",
+                    complexSearchableScd: new ComplexSearchableScd
+                    {
+                        Searchable = new SearchableScd
+                        {
+                            ReaderId = Guid.Parse("dddddddd-aaaa-bbbb-cccc-eeeeeeeeeeee"),
+                        },
+                        AboveCarbonDioxide = 500,
+                        BelowCarbonDioxide = 800,
+                    }),
+
+                CreateSample(
+                    "Returns SCD41 entries with Humidity between 40% and 55% and CarbonDioxide between 600 and 900 ppm ordered by ObservedAt ascending.",
+                    complexSearchableScd: new ComplexSearchableScd
+                    {
+                        AboveHumidity = 40.0f,
+                        BelowHumidity = 55.0f,
+                        AboveCarbonDioxide = 600,
+                        BelowCarbonDioxide = 900,
+                        OrderByObservedAt = OrderDirection.ASCENDING,
+                    }),
+
+                CreateSample(
+                    "Returns SCD41 entries for a specific reader with Temperature between 21°C and 25°C and CarbonDioxide below 800 ppm observed within the last 2 days.",
+                    complexSearchableScd: new ComplexSearchableScd
+                    {
+                        Searchable = new SearchableScd
+                        {
+                            ReaderId = Guid.Parse("aaaaaaaa-9999-8888-7777-666666666666"),
+                        },
+                        AboveTemperature = 21.0f,
+                        BelowTemperature = 25.0f,
+                        BelowCarbonDioxide = 800,
+                        LastXDaysObservedAt = 2,
+                    }),
             ];
         }
 
@@ -831,15 +1059,14 @@ namespace Weather.Server.Controllers
             };
         }
 
-        private void Normalize<TSearchable>(IComplexSearchable<TSearchable>? complex) where TSearchable : class, ISearchable, new()
+        private void Normalize<TSearchable>(IComplexSearchable<TSearchable>? complex)
+            where TSearchable : class, ISearchable, new()
         {
             if (complex?.Searchable is null)
                 return;
 
             if (IsEmpty(complex.Searchable))
-            {
                 complex.Searchable = null!;
-            }
         }
 
         private bool IsEmpty<T>(T obj)
@@ -848,12 +1075,13 @@ namespace Weather.Server.Controllers
 
             return properties.All(prop =>
             {
-                var value = prop.GetValue(obj);
+                object? value = prop.GetValue(obj);
 
                 if (value is null)
                     return true;
 
-                var defaultValue = prop.PropertyType.IsValueType ? Activator.CreateInstance(prop.PropertyType) : null;
+                object? defaultValue =
+                    prop.PropertyType.IsValueType ? Activator.CreateInstance(prop.PropertyType) : null;
 
                 return Equals(value, defaultValue);
             });
